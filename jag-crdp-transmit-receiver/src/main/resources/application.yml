@@ -6,7 +6,6 @@ crdp:
   host: ${ORDS_HOST}
   cron-job-outgoing-file:  ${CRON_JOB_OUTGOING_FILE}
   rabbitmq:
-    ords-host: ${ORDS_HOST}
     receiver-queue: ${RECEIVER_QUEUE_NAME}
     receiver-routing-key: ${RECEIVER_ROUTING_KEY}
     exchange-name: ${RABBIT_EXCHANGE_NAME}
@@ -14,6 +13,8 @@ crdp:
 spring:
   rabbitmq:
     host: ${RABBIT_MQ_HOST}
+    username: ${RABBIT_MQ_USERNAME}
+    password: ${RABBIT_MQ_PASSWORD}
     port: 5672
 
 management:

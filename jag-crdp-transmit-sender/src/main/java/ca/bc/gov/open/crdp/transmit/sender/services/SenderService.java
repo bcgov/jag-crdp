@@ -37,7 +37,7 @@ public class SenderService {
     @Value("${crdp.out-file-dir}")
     private String outFileDir = "/";
 
-    private final String tempFileDir = "temp-xmls/";
+    private final String tempFileDir = "./temp-xmls/";
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
