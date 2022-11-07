@@ -17,8 +17,6 @@
         <joda-time.version>2.10.6</joda-time.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <fi.solita.clamav>1.0.1</fi.solita.clamav>
-        <log4j2.version>2.17.1</log4j2.version>
-        <snakeyaml.version>1.33</snakeyaml.version>
         <xmlschema-core.version>2.2.5</xmlschema-core.version>
         <xmlschema.version>1.4.7</xmlschema.version>
         <spring.actuator.version>2.7.5</spring.actuator.version>
