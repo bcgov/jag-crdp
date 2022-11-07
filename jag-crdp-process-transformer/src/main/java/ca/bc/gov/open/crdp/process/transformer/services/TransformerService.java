@@ -51,6 +51,9 @@ public class TransformerService {
     @Value("${crdp.errors-dir}")
     private String errorsDir = "/";
 
+    @Value("${crdp.sftp-enabled}")
+    private String sftpEnabled = "true";
+
     private String timestamp = null;
 
     @Autowired JschSessionProvider jschSessionProvider;
