@@ -90,7 +90,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           CONTEXT: ./jag-crdp-transmit-receiver
         run: |
-          docker build -t ${{github.event.inputs.app}}:${{env.gitsha}} ${CONTEXT}
+          docker build -t ${{github.event.inputs.app1}}:${{env.gitsha}} ${CONTEXT}
 
       # Build image jag-crdp-transmit-sender
       - name: Build image jag-crdp-transmit-sender
@@ -99,7 +99,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           CONTEXT: ./jag-crdp-transmit-sender
         run: |
-          docker build -t ${{github.event.inputs.app}}:${{env.gitsha}} ${CONTEXT}
+          docker build -t ${{github.event.inputs.app2}}:${{env.gitsha}} ${CONTEXT}
 
       # Build image jag-crdp-process-scanner
       - name: Build image jag-crdp-process-scanner
@@ -108,7 +108,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           CONTEXT: ./jag-crdp-process-scanner
         run: |
-          docker build -t ${{github.event.inputs.app}}:${{env.gitsha}} ${CONTEXT}
+          docker build -t ${{github.event.inputs.app3}}:${{env.gitsha}} ${CONTEXT}
 
       # Build image jag-crdp-process-transformer
       - name: Build image jag-crdp-process-transformer
@@ -117,7 +117,7 @@ jobs:
           DOCKER_BUILDKIT: 1
           CONTEXT: ./jag-crdp-process-transformer
         run: |
-          docker build -t ${{github.event.inputs.app}}:${{env.gitsha}} ${CONTEXT}
+          docker build -t ${{github.event.inputs.app4}}:${{env.gitsha}} ${CONTEXT}
 
       # Login to OpenShift Container Repository - Kamloops (OC GOLD)
       - name: Login to OpenShift Container Repository - Kamloops (OC GOLD)
@@ -130,7 +130,7 @@ jobs:
       # Push image jag-crdp-transmit-receiver to OpenShift Image stream - Kamloops (OC GOLD)
       - name: Push Image jag-crdp-transmit-receiver to Openshift Image Stream - Kamloops (OC GOLD)
         env:
-          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app}}:${{secrets.OPENSHIFT_ENV_TAG}}
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app1}}:${{secrets.OPENSHIFT_ENV_TAG}}
         run: |
           docker tag ${{github.event.inputs.app1}}:${{env.gitsha}} ${IMAGE}
           docker push ${IMAGE}
@@ -138,7 +138,7 @@ jobs:
       # Push image jag-crdp-transmit-sender to OpenShift Image stream - Kamloops (OC GOLD)
       - name: Push Image jag-crdp-transmit-sender to Openshift Image Stream - Kamloops (OC GOLD)
         env:
-          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app}}:${{secrets.OPENSHIFT_ENV_TAG}}
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app2}}:${{secrets.OPENSHIFT_ENV_TAG}}
         run: |
           docker tag ${{github.event.inputs.app2}}:${{env.gitsha}} ${IMAGE}
           docker push ${IMAGE}
@@ -146,7 +146,7 @@ jobs:
       # Push image jag-crdp-process-scanner to OpenShift Image stream - Kamloops (OC GOLD)
       - name: Push Image jag-crdp-process-scanner to Openshift Image Stream - Kamloops (OC GOLD)
         env:
-          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app}}:${{secrets.OPENSHIFT_ENV_TAG}}
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app3}}:${{secrets.OPENSHIFT_ENV_TAG}}
         run: |
           docker tag ${{github.event.inputs.app3}}:${{env.gitsha}} ${IMAGE}
           docker push ${IMAGE}
@@ -154,7 +154,7 @@ jobs:
       # Push image jag-crdp-process-transformer to OpenShift Image stream - Kamloops (OC GOLD)
       - name: Push Image jag-crdp-process-transformer to Openshift Image Stream - Kamloops (OC GOLD)
         env:
-          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app}}:${{secrets.OPENSHIFT_ENV_TAG}}
+          IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY}}/${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}/${{github.event.inputs.app4}}:${{secrets.OPENSHIFT_ENV_TAG}}
         run: |
           docker tag ${{github.event.inputs.app4}}:${{env.gitsha}} ${IMAGE}
           docker push ${IMAGE}

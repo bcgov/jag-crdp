@@ -37,6 +37,9 @@ public class ScannerService {
     @Value("${crdp.record-ttl-hour}")
     private int recordTTLHour = 24;
 
+    @Value("${crdp.sftp-enabled}")
+    private String sftpEnabled = "true";
+
     @Autowired JschSessionProvider jschSessionProvider;
     private FileService fileService;
     private final SftpProperties sftpProperties;
@@ -80,7 +83,7 @@ public class ScannerService {
     @Scheduled(cron = "${crdp.cron-job-incoming-file}")
     public void CRDPScanner() {
         fileService =
-                false
+                Boolean.valueOf(sftpEnabled)
                         ? new SftpServiceImpl(jschSessionProvider, sftpProperties)
                         : new LocalFileImpl();
 

@@ -10,9 +10,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>crdp-code-coverage</artifactId>
-    <properties>
-        <log4j2.version>2.17.1</log4j2.version>
-    </properties>
 
     <dependencies>
         <dependency>
@@ -58,6 +55,18 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ca.bc.gov.open</groupId>
+                <artifactId>crdp-starters-bom</artifactId>
+                <version>0.2.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

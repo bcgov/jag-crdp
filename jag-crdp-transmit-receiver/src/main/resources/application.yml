@@ -4,7 +4,6 @@ security:
     username: ${BASIC_AUTH_USER}
 crdp:
   host: ${ORDS_HOST}
-  out-file-dir: ${OUTGOING_FILE_DIR}
   cron-job-outgoing-file:  ${CRON_JOB_OUTGOING_FILE}
   rabbitmq:
     ords-host: ${ORDS_HOST}

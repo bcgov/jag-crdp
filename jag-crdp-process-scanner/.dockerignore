@@ -2,4 +2,4 @@
 *
 
 # Allow files and directories
-!./jag-crdp-process-scanner/target/jag-crdp-process-scanner.jar
+!./target/jag-crdp-process-scanner.jar

@@ -2,4 +2,4 @@
 *
 
 # Allow files and directories
-!./jag-crdp-transmit-receiver/target/jag-crdp-transmit-receiver.jar
+!./target/jag-crdp-transmit-receiver.jar
