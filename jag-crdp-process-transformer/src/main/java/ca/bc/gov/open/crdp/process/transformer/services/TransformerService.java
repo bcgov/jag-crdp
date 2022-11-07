@@ -94,7 +94,7 @@ public class TransformerService {
 
     public void processFileService(ScannerPub pub) {
         fileService =
-                false
+                Boolean.valueOf(sftpEnabled)
                         ? new SftpServiceImpl(jschSessionProvider, sftpProperties)
                         : new LocalFileImpl();
 
