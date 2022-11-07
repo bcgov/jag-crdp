@@ -7,6 +7,7 @@ crdp:
   in-progress-dir: ${IN_PROGRESS_DIR}
   record-ttl-hour: ${RECORD_TTL_HOUR}
   cron-job-incoming-file: ${CRON_JOB_INCOMING_FILE}
+  sftp-enabled: ${SFTP_ENABLED}
   rabbitmq:
     scanner-queue: ${SCANNER_QUEUE_NAME}
     scanner-routing-key: ${SCANNER_ROUTING_KEY}
