@@ -32,5 +32,3 @@ management:
       exposure:
         include: metrics,prometheus,health
 
-server:
-  port: 8084
