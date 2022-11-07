@@ -11,6 +11,7 @@ import ca.bc.gov.open.sftp.starter.SftpServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.Map;
 import java.util.UUID;
@@ -99,7 +100,8 @@ public class SenderService {
         File f = null;
         try {
             f = new File(tempFileDir + "TmpXML" + UUID.randomUUID() + ".xml");
-            FileUtils.writeStringToFile(f, xmlPub.getXmlString(), "UTF_8");
+            FileUtils.writeStringToFile(
+                    f, xmlPub.getXmlString(), String.valueOf(StandardCharsets.UTF_8));
             // SCP the file to a server
             sftpTransfer(outFileDir + xmlPub.getFileName(), f);
             log.info(
