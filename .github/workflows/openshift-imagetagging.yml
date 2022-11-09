@@ -5,10 +5,22 @@ name: Trigger deployment to test and prod Openshift environnment by Image stream
 on:
   workflow_dispatch:
     inputs:
-      app:
-        description: 'App Name (jag-crdp)'
-        required: true
-        default: 'jag-crdp'
+      app1:
+            description: 'App Name (jag-crdp-transmit-receiver)'
+            required: true
+            default: 'jag-crdp-transmit-receiver'
+        app2:
+          description: 'App Name (jag-crdp-transmit-sender)'
+          required: true
+          default: 'jag-crdp-transmit-sender'
+        app3:
+          description: 'App Name (jag-crdp-process-scanner)'
+          required: true
+          default: 'jag-crdp-process-scanner'
+        app4:
+          description: 'App Name (jag-crdp-process-transformer)'
+          required: true
+          default: 'jag-crdp-process-transformer'
       imageSourceEnv:
         description: 'Image Source Env'
         required: true
@@ -41,7 +53,10 @@ jobs:
         # Prints vital release paramters used
       - name: Print Release Variables
         run: |
-          echo "Release Application: ${{ github.event.inputs.app }}"
+          echo "Release Application 1: ${{ github.event.inputs.app1 }}"
+          echo "Release Application 2: ${{ github.event.inputs.app2 }}"
+          echo "Release Application 3: ${{ github.event.inputs.app3 }}"
+          echo "Release Application 4: ${{ github.event.inputs.app4 }}"
           echo "Release Environment: ${{ github.event.inputs.imageTargetEnv }}"
           echo "Release Version: ${{ env.releaseVersion }}"
           echo "Release Git Sha: ${{env.gitsha}}"
@@ -57,11 +72,56 @@ jobs:
           openshift_token: ${{secrets.OPENSHIFT_SA_TOOLS_DEPLOYER_TOKEN}}
           namespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
         
-        # Re-Tag latest dev (source) jag-crdp image to other env to trigger openshift deployment via DeploymentConfig
+        # Re-Tag latest dev (source) jag-crdp-transmit-receiver image to other env to trigger openshift deployment via DeploymentConfig
         # It also creates a tag with release version number to use it in case of rollback..
-      - name: Retag jag-crdp image to release env and version - Kamloops (OC PROD)
+      - name: Retag jag-crdp-transmit-receiver image to release env and version - Kamloops (OC PROD)
         env:
-          appName: ${{ github.event.inputs.app }}
+          appName: ${{ github.event.inputs.app1 }}
+          imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
+          imageTargetEnv: ${{ github.event.inputs.imageTargetEnv }}
+          openshiftToolsNamespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
+          openshiftIImageRegistry: ${{secrets.OPENSHIFT_INTERNAL_REPOSITORY}}
+          releaseVersion: ${{ env.releaseVersion }}
+          gitSha: ${{ env.gitsha }}
+        run: |
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageSourceEnv} ${appName}:${imageTargetEnv}
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageTargetEnv} ${appName}:${releaseVersion}.${gitSha}
+      
+      # Re-Tag latest dev (source) jag-crdp-transmit-sender image to other env to trigger openshift deployment via DeploymentConfig
+        # It also creates a tag with release version number to use it in case of rollback..
+      - name: Retag jag-crdp-transmit-sender image to release env and version - Kamloops (OC PROD)
+        env:
+          appName: ${{ github.event.inputs.app2 }}
+          imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
+          imageTargetEnv: ${{ github.event.inputs.imageTargetEnv }}
+          openshiftToolsNamespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
+          openshiftIImageRegistry: ${{secrets.OPENSHIFT_INTERNAL_REPOSITORY}}
+          releaseVersion: ${{ env.releaseVersion }}
+          gitSha: ${{ env.gitsha }}
+        run: |
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageSourceEnv} ${appName}:${imageTargetEnv}
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageTargetEnv} ${appName}:${releaseVersion}.${gitSha}
+
+      # Re-Tag latest dev (source) jag-crdp-process-scanner image to other env to trigger openshift deployment via DeploymentConfig
+        # It also creates a tag with release version number to use it in case of rollback..
+      - name: Retag jag-crdp-process-scanner image to release env and version - Kamloops (OC PROD)
+        env:
+          appName: ${{ github.event.inputs.app3 }}
+          imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
+          imageTargetEnv: ${{ github.event.inputs.imageTargetEnv }}
+          openshiftToolsNamespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
+          openshiftIImageRegistry: ${{secrets.OPENSHIFT_INTERNAL_REPOSITORY}}
+          releaseVersion: ${{ env.releaseVersion }}
+          gitSha: ${{ env.gitsha }}
+        run: |
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageSourceEnv} ${appName}:${imageTargetEnv}
+          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageTargetEnv} ${appName}:${releaseVersion}.${gitSha}
+
+      # Re-Tag latest dev (source) jag-crdp-process-transformer image to other env to trigger openshift deployment via DeploymentConfig
+        # It also creates a tag with release version number to use it in case of rollback..
+      - name: Retag jag-crdp-process-transformer image to release env and version - Kamloops (OC PROD)
+        env:
+          appName: ${{ github.event.inputs.app4 }}
           imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
           imageTargetEnv: ${{ github.event.inputs.imageTargetEnv }}
           openshiftToolsNamespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
@@ -83,73 +143,70 @@ jobs:
           openshift_token: ${{secrets.OPENSHIFT_SA_ENV_DEPLOYER_TOKEN}}
           namespace: ${OPENSHIFT_NAMESPACE}
         
-        # Labels the deployment config of the jag-crdp application with release version number to spin up the pods labelled in same version - Kamloops (OC PROD)
-      - name: Labelling jag-crdp DC to release version - Kamloops (OC PROD)
+        # Labels the deployment config of the jag-crdp-transmit-receiver application with release version number to spin up the pods labelled in same version - Kamloops (OC PROD)
+      - name: Labelling jag-crdp-transmit-receiver DC to release version - Kamloops (OC PROD)
         env:
           releaseVersion: ${{ env.releaseVersion }}
-          appName: ${{ github.event.inputs.app }}
+          appName: ${{ github.event.inputs.app1 }}
           openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
         run: |
           oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.releaseVersion }}.${{ env.gitsha }}"}}}}}'
       
-        # Wait to jag-crdp DC rollout to get completed before proceeding next stage - Kamloops (OC PROD)
-      - name: Wait for jag-crdp DC rollout - Kamloops (OC PROD)
+        # Wait to jag-crdp-transmit-receiver DC rollout to get completed before proceeding next stage - Kamloops (OC PROD)
+      - name: Wait for jag-crdp-transmit-receiver DC rollout - Kamloops (OC PROD)
         env:
-          appName: ${{ github.event.inputs.app }}
+          appName: ${{ github.event.inputs.app1 }}
           openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
         run: |
           oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch
-      
-      #Login to Openshift using OC Tools SA and Token for image stream tagging changes - Calgary (OC DR)
-      - name: Authenticate OC Tools SA - Calgary (OC DR)
-        uses: redhat-actions/oc-login@v1
-        env:
-          OPENSHIFT_NAMESPACE: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
-          OPENSHIFT_USER: ${{secrets.OPENSHIFT_SA_TOOLS_DEPLOYER_NAME}}
-        with:
-          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL_DR}}
-          openshift_token: ${{secrets.OPENSHIFT_SA_TOOLS_DEPLOYER_TOKEN_DR}}
-          namespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
-        
-        # Re-Tag latest dev (source) jag-crdp image to other env to trigger openshift deployment via DeploymentConfig
-        # It also creates a tag with release version number to use it in case of rollback.
-      - name: Retag jag-crdp image to release env and version - Calgary (OC DR)
-        env:
-          appName: ${{ github.event.inputs.app }}
-          imageSourceEnv: ${{ github.event.inputs.imageSourceEnv }}
-          imageTargetEnv: ${{ github.event.inputs.imageTargetEnv }}
-          openshiftToolsNamespace: ${{secrets.OPENSHIFT_TOOLS_NAMESPACE}}
-          openshiftIImageRegistry: ${{secrets.OPENSHIFT_INTERNAL_REPOSITORY}}
-          releaseVersion: ${{ env.releaseVersion }}
-          gitSha: ${{ env.gitsha }}
-        run: |
-          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageSourceEnv} ${appName}:${imageTargetEnv}
-          oc tag ${openshiftIImageRegistry}/${openshiftToolsNamespace}/${appName}:${imageTargetEnv} ${appName}:${releaseVersion}.${gitSha}
 
-        #Login to Openshift using OC SA and Token of respective env. for Pod labelling - Calgary (OC DR)
-      - name: Authenticate OC Env Specific SA - Calgary (OC DR)
-        uses: redhat-actions/oc-login@v1
-        env:
-          OPENSHIFT_NAMESPACE: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
-          OPENSHIFT_USER: ${{secrets.OPENSHIFT_SA_Env_DEPLOYER_NAME}}
-        with:
-          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL_DR}}
-          openshift_token: ${{secrets.OPENSHIFT_SA_ENV_DEPLOYER_TOKEN_DR}}
-          namespace: ${OPENSHIFT_NAMESPACE}
-        
-        # Labels the deployment config of the jag-crdp application with release version number to spin up the pods labelled in same version - Calgary (OC DR)
-      - name: Labelling jag-crdp DC to release version - Calgary (OC DR)
+      # Labels the deployment config of the jag-crdp-transmit-sender application with release version number to spin up the pods labelled in same version - Kamloops (OC PROD)
+      - name: Labelling jag-crdp-transmit-sender DC to release version - Kamloops (OC PROD)
         env:
           releaseVersion: ${{ env.releaseVersion }}
-          appName: ${{ github.event.inputs.app }}
+          appName: ${{ github.event.inputs.app2 }}
           openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
         run: |
           oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.releaseVersion }}.${{ env.gitsha }}"}}}}}'
-
-        # Wait to jag-crdp DC rollout to get completed before proceeding next stage - Calgary (OC DR)
-      - name: Wait for jag-crdp DC rollout - Calgary (OC DR)
+      
+        # Wait to jag-crdp-transmit-sender DC rollout to get completed before proceeding next stage - Kamloops (OC PROD)
+      - name: Wait for jag-crdp-transmit-sender DC rollout - Kamloops (OC PROD)
         env:
-          appName: ${{ github.event.inputs.app }}
+          appName: ${{ github.event.inputs.app2 }}
           openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
         run: |
           oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch
+
+      # Labels the deployment config of the jag-crdp-process-scanner application with release version number to spin up the pods labelled in same version - Kamloops (OC PROD)
+      - name: Labelling jag-crdp-process-scanner DC to release version - Kamloops (OC PROD)
+        env:
+          releaseVersion: ${{ env.releaseVersion }}
+          appName: ${{ github.event.inputs.app3 }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+        run: |
+          oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.releaseVersion }}.${{ env.gitsha }}"}}}}}'
+      
+        # Wait to jag-crdp-process-scanner DC rollout to get completed before proceeding next stage - Kamloops (OC PROD)
+      - name: Wait for jag-crdp-process-scanner DC rollout - Kamloops (OC PROD)
+        env:
+          appName: ${{ github.event.inputs.app3 }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+        run: |
+          oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch
+
+      # Labels the deployment config of the jag-crdp-process-transformer application with release version number to spin up the pods labelled in same version - Kamloops (OC PROD)
+      - name: Labelling jag-crdp-process-transformer DC to release version - Kamloops (OC PROD)
+        env:
+          releaseVersion: ${{ env.releaseVersion }}
+          appName: ${{ github.event.inputs.app4 }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+        run: |
+          oc patch dc ${appName} -n ${openshiftEnvNamespace} --patch '{"spec":{"template":{"metadata":{"labels":{"version":"${{ env.releaseVersion }}.${{ env.gitsha }}"}}}}}'
+      
+        # Wait to jag-crdp-process-transformer DC rollout to get completed before proceeding next stage - Kamloops (OC PROD)
+      - name: Wait for jag-crdp-process-transformer DC rollout - Kamloops (OC PROD)
+        env:
+          appName: ${{ github.event.inputs.app4 }}
+          openshiftEnvNamespace: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
+        run: |
+          oc rollout status -n ${openshiftEnvNamespace} dc/${appName} --watch       
