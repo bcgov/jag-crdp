@@ -59,6 +59,7 @@ public class ScannerService {
     private static TreeMap<String, String> inProgressFoldersToMove =
             new TreeMap<String, String>(); // completed files.
 
+    LocalDateTime scanDateTime;
     DateTimeFormatter customFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH-mm-ss");
 
     @Autowired
@@ -91,10 +92,7 @@ public class ScannerService {
         inProgressFilesToMove = new TreeMap<String, String>();
         inProgressFoldersToMove = new TreeMap<String, String>();
 
-        LocalDateTime scanDateTime = LocalDateTime.now();
-
-        // File object
-        fileService.makeFolder(inFileDir);
+        scanDateTime = LocalDateTime.now();
 
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
             // create inProgress folder
@@ -114,6 +112,11 @@ public class ScannerService {
             if (inProgressFilesToMove.isEmpty() && inProgressFoldersToMove.isEmpty()) {
                 log.info("No file/fold found, closing current scan session: " + scanDateTime);
                 return;
+            }
+
+            // create inProgress folder
+            if (!fileService.exists(inProgressDir + customFormatter.format(scanDateTime))) {
+                fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
             }
 
             try {
@@ -164,7 +167,7 @@ public class ScannerService {
             // for root folder files (Audit and Status).
             if (!fileService.isDirectory(arr[index])) {
                 inProgressFilesToMove.put(
-                        arr[index], inProgressDir + Paths.get(arr[index]).getFileName().toString());
+                        arr[index], inProgressDir + customFormatter.format(scanDateTime) + "/" + Paths.get(arr[index]).getFileName().toString());
             }
 
             // for sub-directories
@@ -182,7 +185,7 @@ public class ScannerService {
                             || "JUS178s".equals(getFileName(arr[index]))) {
                         inProgressFoldersToMove.put(
                                 arr[index],
-                                inProgressDir + processFolderName + "/" + getFileName(arr[index]));
+                                inProgressDir + customFormatter.format(scanDateTime) + "/" + processFolderName + "/" + getFileName(arr[index]));
                     } else {
                         // recursion for sub-directories
                         recursiveScan(

@@ -106,9 +106,6 @@ public class TransformerService {
 
         this.timestamp = pub.getDateTime();
 
-        // File object
-        fileService.makeFolder(inProgressDir);
-
         if (fileService.exists(inProgressDir) && fileService.isDirectory(inProgressDir)) {
             // create Completed folder
             if (!fileService.exists(completedDir)) {
@@ -171,23 +168,18 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-        boolean move = false;
 
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
-                move = true;
 
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
                 processStatusSvc(filePath);
-                move = true;
             }
 
             // Move file to 'completed' folder on success (status or audit only)
-            if (move) {
-                completedFilesToMove.put(
-                        filePath, completedDir + timestamp + "/" + getFileName(filePath));
-            }
+            completedFilesToMove.put(
+                    filePath, completedDir + timestamp + "/" + getFileName(filePath));
 
         } catch (Exception e) {
             erredFilesToMove.put(filePath, errorsDir + timestamp + "/" + getFileName(filePath));
@@ -221,7 +213,7 @@ public class TransformerService {
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processAuditSvc")));
             if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResultMsg());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
 
         } catch (Exception e) {
@@ -267,7 +259,7 @@ public class TransformerService {
                             new RequestSuccessLog("Request Success", "processStatusSvc")));
 
             if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResultMsg());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
         } catch (Exception e) {
             log.error(
@@ -303,6 +295,12 @@ public class TransformerService {
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "SaveError")));
+            if (!response.getBody().get("status").equals("0")) {
+                log.error(
+                        objectMapper.writeValueAsString(
+                                new OrdsErrorLog(
+                                        "Error received from ORDS", "SaveError", response.getBody().get("responseMessageTxt"), req)));
+            }
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -461,7 +459,7 @@ public class TransformerService {
                                                 FilenameUtils.getName(pdf),
                                                 response.getBody().getObjectGuid()));
                     } else {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -505,7 +503,7 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessCCsXML")));
 
                     if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -542,7 +540,7 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessLettersXML")));
 
                     if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -595,7 +593,7 @@ public class TransformerService {
                                 new RequestSuccessLog("Request Success", "processReportSvc")));
 
                 if (!response.getBody().getResultCd().equals("0")) {
-                    throw new ORDSException(response.getBody().getResultMsg());
+                    throw new ORDSException(response.getBody().getResponseMessageTxt());
                 }
             } catch (Exception e) {
                 log.error(
