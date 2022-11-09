@@ -272,7 +272,8 @@ public class TransformerServiceTests {
         SaveErrorResponse resp = new SaveErrorResponse();
         resp.setResultCd("0");
         resp.setResponseMessageTxt("AA");
-        ResponseEntity<SaveErrorResponse> responseEntity = new ResponseEntity<>(resp, HttpStatus.OK);
+        ResponseEntity<SaveErrorResponse> responseEntity =
+                new ResponseEntity<>(resp, HttpStatus.OK);
 
         // Set up to mock ords response
         when(restTemplate.exchange(
