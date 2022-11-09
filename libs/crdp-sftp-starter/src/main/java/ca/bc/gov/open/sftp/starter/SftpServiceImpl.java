@@ -105,6 +105,7 @@ public class SftpServiceImpl implements FileService {
                         logger.debug("Successfully uploaded file [{}]", remoteFileName);
                     } catch (Exception e) {
                         logger.error(sftpRemoteFilename + ": " + e.getMessage());
+                        throw e;
                     }
                 });
     }
@@ -126,6 +127,7 @@ public class SftpServiceImpl implements FileService {
                         logger.debug("Successfully uploaded file [{}]", remoteFileName);
                     } catch (Exception e) {
                         logger.error(sftpRemoteFilename + ": " + e.getMessage());
+                        throw e;
                     }
                 });
     }
@@ -156,6 +158,7 @@ public class SftpServiceImpl implements FileService {
                                         + sftpDestinationFilename
                                         + ": "
                                         + e.getMessage());
+                        throw e;
                     }
                 });
     }
@@ -184,6 +187,7 @@ public class SftpServiceImpl implements FileService {
                         }
                     } catch (Exception e) {
                         logger.error(sftpRemoteDirectory + ": " + e.getMessage());
+                        throw e;
                     }
                 });
 
@@ -205,6 +209,7 @@ public class SftpServiceImpl implements FileService {
                         logger.debug("Successfully removed folder [{}]", remoteFilePath);
                     } catch (Exception e) {
                         logger.error(remoteFilePath + ": " + e.getMessage());
+                        throw e;
                     }
                 });
     }
@@ -224,6 +229,7 @@ public class SftpServiceImpl implements FileService {
                         logger.debug("Successfully created folder [{}]", remoteFilePath);
                     } catch (Exception e) {
                         logger.error(remoteFilePath + ": " + e.getMessage());
+                        throw e;
                     }
                 });
     }
@@ -248,6 +254,7 @@ public class SftpServiceImpl implements FileService {
                         } else {
                             logger.error(getFilePath(filePath) + ": " + e.getMessage());
                         }
+                        throw e;
                     }
                     logger.debug(getFilePath(filePath) + " is found");
                 });
@@ -274,6 +281,7 @@ public class SftpServiceImpl implements FileService {
                                         + channelSftp.lstat(remoteFilePath).isDir());
                     } catch (SftpException e) {
                         logger.error(remoteFilePath + ": " + e.getMessage());
+                        throw e;
                     }
                 });
         return result.get();
@@ -300,6 +308,7 @@ public class SftpServiceImpl implements FileService {
                                         + channelSftp.lstat(remoteFilePath).getMtimeString());
                     } catch (SftpException e) {
                         logger.error(remoteFilePath + ": " + e.getMessage());
+                        throw e;
                     }
                 });
         return result.get();
