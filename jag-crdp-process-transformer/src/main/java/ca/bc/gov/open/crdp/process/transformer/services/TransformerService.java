@@ -291,20 +291,23 @@ public class TransformerService {
         SaveErrorRequest req = new SaveErrorRequest(errMsg, date, fileName, fileContentXml);
         HttpEntity<SaveErrorRequest> payload = new HttpEntity<>(req, new HttpHeaders());
         try {
-            HttpEntity<Map<String, String>> response =
+            HttpEntity<SaveErrorResponse> response =
                     restTemplate.exchange(
                             builder.toUriString(),
                             HttpMethod.POST,
                             payload,
-                            new ParameterizedTypeReference<>() {});
+                            SaveErrorResponse.class);
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "SaveError")));
-            if (!response.getBody().get("status").equals("0")) {
+            if (!response.getBody().getResultCd().equals("0")) {
                 log.error(
                         objectMapper.writeValueAsString(
                                 new OrdsErrorLog(
-                                        "Error received from ORDS", "SaveError", response.getBody().get("responseMessageTxt"), req)));
+                                        "Error received from ORDS",
+                                        "SaveError",
+                                        response.getBody().getResponseMessageTxt(),
+                                        req)));
             }
         } catch (Exception e) {
             log.error(
