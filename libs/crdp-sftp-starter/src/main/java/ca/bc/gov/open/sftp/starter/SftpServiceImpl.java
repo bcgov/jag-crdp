@@ -217,10 +217,10 @@ public class SftpServiceImpl implements FileService {
                         if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
                             result.set(false);
                         } else {
-                            logger.error(e.getMessage());
+                            logger.error(getFilePath(filePath) + " " + e.getMessage());
                         }
                     }
-                    logger.debug(filePath + " is found");
+                    logger.debug(getFilePath(filePath) + " is found");
                 });
         return result.get();
     }
@@ -244,7 +244,7 @@ public class SftpServiceImpl implements FileService {
                                         + " is a directory is "
                                         + channelSftp.lstat(remoteFilePath).isDir());
                     } catch (SftpException e) {
-                        logger.error(e.getMessage());
+                        logger.error(remoteFilePath + " " + e.getMessage());
                     }
                 });
         return result.get();
@@ -270,7 +270,7 @@ public class SftpServiceImpl implements FileService {
                                         + " is "
                                         + channelSftp.lstat(remoteFilePath).getMtimeString());
                     } catch (SftpException e) {
-                        logger.error(e.getMessage());
+                        logger.error(remoteFilePath + " " + e.getMessage());
                     }
                 });
         return result.get();
