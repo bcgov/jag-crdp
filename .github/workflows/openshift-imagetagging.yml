@@ -6,21 +6,21 @@ on:
   workflow_dispatch:
     inputs:
       app1:
-            description: 'App Name (jag-crdp-transmit-receiver)'
-            required: true
-            default: 'jag-crdp-transmit-receiver'
-        app2:
-          description: 'App Name (jag-crdp-transmit-sender)'
-          required: true
-          default: 'jag-crdp-transmit-sender'
-        app3:
-          description: 'App Name (jag-crdp-process-scanner)'
-          required: true
-          default: 'jag-crdp-process-scanner'
-        app4:
-          description: 'App Name (jag-crdp-process-transformer)'
-          required: true
-          default: 'jag-crdp-process-transformer'
+        description: 'App Name (jag-crdp-transmit-receiver)'
+        required: true
+        default: 'jag-crdp-transmit-receiver'
+      app2:
+        description: 'App Name (jag-crdp-transmit-sender)'
+        required: true
+        default: 'jag-crdp-transmit-sender'
+      app3:
+        description: 'App Name (jag-crdp-process-scanner)'
+        required: true
+        default: 'jag-crdp-process-scanner'
+      app4:
+        description: 'App Name (jag-crdp-process-transformer)'
+        required: true
+        default: 'jag-crdp-process-transformer'
       imageSourceEnv:
         description: 'Image Source Env'
         required: true
