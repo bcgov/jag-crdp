@@ -115,9 +115,7 @@ public class ScannerService {
             }
 
             // create inProgress folder
-            if (!fileService.exists(inProgressDir + customFormatter.format(scanDateTime))) {
-                fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
-            }
+            fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
 
             try {
                 // move files into in-progress folder
@@ -167,7 +165,11 @@ public class ScannerService {
             // for root folder files (Audit and Status).
             if (!fileService.isDirectory(arr[index])) {
                 inProgressFilesToMove.put(
-                        arr[index], inProgressDir + customFormatter.format(scanDateTime) + "/" + Paths.get(arr[index]).getFileName().toString());
+                        arr[index],
+                        inProgressDir
+                                + customFormatter.format(scanDateTime)
+                                + "/"
+                                + Paths.get(arr[index]).getFileName().toString());
             }
 
             // for sub-directories
@@ -185,7 +187,12 @@ public class ScannerService {
                             || "JUS178s".equals(getFileName(arr[index]))) {
                         inProgressFoldersToMove.put(
                                 arr[index],
-                                inProgressDir + customFormatter.format(scanDateTime) + "/" + processFolderName + "/" + getFileName(arr[index]));
+                                inProgressDir
+                                        + customFormatter.format(scanDateTime)
+                                        + "/"
+                                        + processFolderName
+                                        + "/"
+                                        + getFileName(arr[index]));
                     } else {
                         // recursion for sub-directories
                         recursiveScan(
