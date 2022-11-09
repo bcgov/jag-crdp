@@ -100,8 +100,12 @@ public class SftpServiceImpl implements FileService {
 
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.put(inputFileName, sftpRemoteFilename);
-                    logger.debug("Successfully uploaded file [{}]", remoteFileName);
+                    try {
+                        channelSftp.put(inputFileName, sftpRemoteFilename);
+                        logger.debug("Successfully uploaded file [{}]", remoteFileName);
+                    } catch (Exception e) {
+                        logger.error(sftpRemoteFilename + ": " + e.getMessage());
+                    }
                 });
     }
 
@@ -117,8 +121,12 @@ public class SftpServiceImpl implements FileService {
 
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.put(inputStream, sftpRemoteFilename);
-                    logger.debug("Successfully uploaded file [{}]", remoteFileName);
+                    try {
+                        channelSftp.put(inputStream, sftpRemoteFilename);
+                        logger.debug("Successfully uploaded file [{}]", remoteFileName);
+                    } catch (Exception e) {
+                        logger.error(sftpRemoteFilename + ": " + e.getMessage());
+                    }
                 });
     }
 
@@ -135,11 +143,20 @@ public class SftpServiceImpl implements FileService {
 
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
-                    logger.debug(
-                            "Successfully renamed files on the sftp server from {} to {}",
-                            sftpRemoteFilename,
-                            sftpDestinationFilename);
+                    try {
+                        channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
+                        logger.debug(
+                                "Successfully renamed files on the sftp server from {} to {}",
+                                sftpRemoteFilename,
+                                sftpDestinationFilename);
+                    } catch (Exception e) {
+                        logger.error(
+                                sftpRemoteFilename
+                                        + "->"
+                                        + sftpDestinationFilename
+                                        + ": "
+                                        + e.getMessage());
+                    }
                 });
     }
 
@@ -156,13 +173,17 @@ public class SftpServiceImpl implements FileService {
 
         executeSftpFunction(
                 channelSftp -> {
-                    Vector fileList = channelSftp.ls(sftpRemoteDirectory);
+                    try {
+                        Vector fileList = channelSftp.ls(sftpRemoteDirectory);
 
-                    for (int i = 0; i < fileList.size(); i++) {
-                        logger.debug("Attempting to list files in [{}]", sftpRemoteDirectory);
-                        ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) fileList.get(i);
-                        logger.debug("Successfully to list files in [{}]", sftpRemoteDirectory);
-                        result.add(lsEntry.getFilename());
+                        for (int i = 0; i < fileList.size(); i++) {
+                            logger.debug("Attempting to list files in [{}]", sftpRemoteDirectory);
+                            ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) fileList.get(i);
+                            logger.debug("Successfully to list files in [{}]", sftpRemoteDirectory);
+                            result.add(lsEntry.getFilename());
+                        }
+                    } catch (Exception e) {
+                        logger.error(sftpRemoteDirectory + ": " + e.getMessage());
                     }
                 });
 
@@ -179,8 +200,12 @@ public class SftpServiceImpl implements FileService {
         String remoteFilePath = getFilePath(folderPath);
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.rm(remoteFilePath);
-                    logger.debug("Successfully removed folder [{}]", remoteFilePath);
+                    try {
+                        channelSftp.rm(remoteFilePath);
+                        logger.debug("Successfully removed folder [{}]", remoteFilePath);
+                    } catch (Exception e) {
+                        logger.error(remoteFilePath + ": " + e.getMessage());
+                    }
                 });
     }
 
@@ -194,8 +219,12 @@ public class SftpServiceImpl implements FileService {
         String remoteFilePath = getFilePath(folderPath);
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.mkdir(remoteFilePath);
-                    logger.debug("Successfully created folder [{}]", remoteFilePath);
+                    try {
+                        channelSftp.mkdir(remoteFilePath);
+                        logger.debug("Successfully created folder [{}]", remoteFilePath);
+                    } catch (Exception e) {
+                        logger.error(remoteFilePath + ": " + e.getMessage());
+                    }
                 });
     }
 
@@ -217,7 +246,7 @@ public class SftpServiceImpl implements FileService {
                         if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
                             result.set(false);
                         } else {
-                            logger.error(getFilePath(filePath) + " " + e.getMessage());
+                            logger.error(getFilePath(filePath) + ": " + e.getMessage());
                         }
                     }
                     logger.debug(getFilePath(filePath) + " is found");
@@ -244,7 +273,7 @@ public class SftpServiceImpl implements FileService {
                                         + " is a directory is "
                                         + channelSftp.lstat(remoteFilePath).isDir());
                     } catch (SftpException e) {
-                        logger.error(remoteFilePath + " " + e.getMessage());
+                        logger.error(remoteFilePath + ": " + e.getMessage());
                     }
                 });
         return result.get();
@@ -270,7 +299,7 @@ public class SftpServiceImpl implements FileService {
                                         + " is "
                                         + channelSftp.lstat(remoteFilePath).getMtimeString());
                     } catch (SftpException e) {
-                        logger.error(remoteFilePath + " " + e.getMessage());
+                        logger.error(remoteFilePath + ": " + e.getMessage());
                     }
                 });
         return result.get();
