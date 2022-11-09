@@ -159,9 +159,9 @@ public class SftpServiceImpl implements FileService {
                     Vector fileList = channelSftp.ls(sftpRemoteDirectory);
 
                     for (int i = 0; i < fileList.size(); i++) {
-                        logger.debug("Attempting to list files in [{}]", directory);
+                        logger.debug("Attempting to list files in [{}]", sftpRemoteDirectory);
                         ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) fileList.get(i);
-                        logger.debug("Successfully to list files in [{}]", directory);
+                        logger.debug("Successfully to list files in [{}]", sftpRemoteDirectory);
                         result.add(lsEntry.getFilename());
                     }
                 });
@@ -176,10 +176,11 @@ public class SftpServiceImpl implements FileService {
      */
     @Override
     public void removeFolder(String folderPath) {
+        String remoteFilePath = getFilePath(folderPath);
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.rm(folderPath);
-                    logger.debug("Successfully removed folder [{}]", folderPath);
+                    channelSftp.rm(remoteFilePath);
+                    logger.debug("Successfully removed folder [{}]", remoteFilePath);
                 });
     }
 
@@ -190,10 +191,11 @@ public class SftpServiceImpl implements FileService {
      */
     @Override
     public void makeFolder(String folderPath) {
+        String remoteFilePath = getFilePath(folderPath);
         executeSftpFunction(
                 channelSftp -> {
-                    channelSftp.mkdir(folderPath);
-                    logger.debug("Successfully created folder [{}]", folderPath);
+                    channelSftp.mkdir(remoteFilePath);
+                    logger.debug("Successfully created folder [{}]", remoteFilePath);
                 });
     }
 
@@ -209,7 +211,7 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        channelSftp.lstat(filePath);
+                        channelSftp.lstat(getFilePath(filePath));
                         result.set(true);
                     } catch (SftpException e) {
                         if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
@@ -232,14 +234,15 @@ public class SftpServiceImpl implements FileService {
     @Override
     public boolean isDirectory(String filePath) {
         AtomicBoolean result = new AtomicBoolean(false);
+        String remoteFilePath = getFilePath(filePath);
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        result.set(channelSftp.lstat(filePath).isDir());
+                        result.set(channelSftp.lstat(remoteFilePath).isDir());
                         logger.debug(
-                                filePath
+                                remoteFilePath
                                         + " is a directory is "
-                                        + channelSftp.lstat(filePath).isDir());
+                                        + channelSftp.lstat(remoteFilePath).isDir());
                     } catch (SftpException e) {
                         logger.error(e.getMessage());
                     }
@@ -256,15 +259,16 @@ public class SftpServiceImpl implements FileService {
     @Override
     public long lastModify(String filePath) {
         AtomicLong result = new AtomicLong();
+        String remoteFilePath = getFilePath(filePath);
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        result.set(channelSftp.lstat(filePath).getMTime());
+                        result.set(channelSftp.lstat(remoteFilePath).getMTime());
                         logger.debug(
                                 "Last modified of "
-                                        + filePath
+                                        + remoteFilePath
                                         + " is "
-                                        + channelSftp.lstat(filePath).getMtimeString());
+                                        + channelSftp.lstat(remoteFilePath).getMtimeString());
                     } catch (SftpException e) {
                         logger.error(e.getMessage());
                     }
