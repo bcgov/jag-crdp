@@ -111,17 +111,10 @@ public class TransformerService {
             if (!fileService.exists(completedDir)) {
                 fileService.makeFolder(completedDir);
             }
-            // create completed folder with last scanning timestamp
-            if (!fileService.exists(completedDir + timestamp)) {
-                fileService.makeFolder(completedDir + timestamp);
-            }
+
             // create Errors folder
             if (!fileService.exists(errorsDir)) {
                 fileService.makeFolder(errorsDir);
-            }
-            // create errors folder with last scanning timestamp
-            if (!fileService.exists(errorsDir + timestamp)) {
-                fileService.makeFolder(errorsDir + timestamp);
             }
 
             if (!fileService.isDirectory(pub.getFilePath())) {
@@ -133,18 +126,24 @@ public class TransformerService {
             }
 
             try {
+                // create completed folder with last scanning timestamp
+                if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
+                    fileService.makeFolder(completedDir + timestamp);
+                }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-
                 for (Map.Entry<String, String> m : completedFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
 
+                // create errors folder with last scanning timestamp
+                if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
+                    fileService.makeFolder(errorsDir + timestamp);
+                }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-
                 for (Map.Entry<String, String> m : erredFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
@@ -158,9 +157,15 @@ public class TransformerService {
     }
 
     private void cleanUp(String inProgressDir) {
-        for (var f : fileService.listFiles(inProgressDir)) {
-            if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
-                fileService.removeFolder(f);
+        for (String folder : fileService.listFiles(inProgressDir)) {
+            if (fileService.listFiles(folder).size() == 0) {
+                fileService.removeFolder(folder);
+                continue;
+            }
+            for (String f : fileService.listFiles(folder)) {
+                if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
+                    fileService.removeFolder(f);
+                }
             }
         }
     }

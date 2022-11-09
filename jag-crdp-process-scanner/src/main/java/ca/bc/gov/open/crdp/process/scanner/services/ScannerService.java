@@ -115,9 +115,7 @@ public class ScannerService {
             }
 
             // create inProgress folder
-            if (!fileService.exists(inProgressDir + customFormatter.format(scanDateTime))) {
-                fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
-            }
+            fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
 
             try {
                 // move files into in-progress folder
