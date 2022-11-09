@@ -106,25 +106,15 @@ public class TransformerService {
 
         this.timestamp = pub.getDateTime();
 
-        // File object
-        fileService.makeFolder(inProgressDir);
-
         if (fileService.exists(inProgressDir) && fileService.isDirectory(inProgressDir)) {
             // create Completed folder
             if (!fileService.exists(completedDir)) {
                 fileService.makeFolder(completedDir);
             }
-            // create completed folder with last scanning timestamp
-            if (!fileService.exists(completedDir + timestamp)) {
-                fileService.makeFolder(completedDir + timestamp);
-            }
+
             // create Errors folder
             if (!fileService.exists(errorsDir)) {
                 fileService.makeFolder(errorsDir);
-            }
-            // create errors folder with last scanning timestamp
-            if (!fileService.exists(errorsDir + timestamp)) {
-                fileService.makeFolder(errorsDir + timestamp);
             }
 
             if (!fileService.isDirectory(pub.getFilePath())) {
@@ -136,18 +126,24 @@ public class TransformerService {
             }
 
             try {
+                // create completed folder with last scanning timestamp
+                if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
+                    fileService.makeFolder(completedDir + timestamp);
+                }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-
                 for (Map.Entry<String, String> m : completedFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
 
+                // create errors folder with last scanning timestamp
+                if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
+                    fileService.makeFolder(errorsDir + timestamp);
+                }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-
                 for (Map.Entry<String, String> m : erredFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
@@ -161,9 +157,15 @@ public class TransformerService {
     }
 
     private void cleanUp(String inProgressDir) {
-        for (var f : fileService.listFiles(inProgressDir)) {
-            if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
-                fileService.removeFolder(f);
+        for (String folder : fileService.listFiles(inProgressDir)) {
+            if (fileService.listFiles(folder).size() == 0) {
+                fileService.removeFolder(folder);
+                continue;
+            }
+            for (String f : fileService.listFiles(folder)) {
+                if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
+                    fileService.removeFolder(f);
+                }
             }
         }
     }
@@ -171,23 +173,18 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-        boolean move = false;
 
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
-                move = true;
 
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
                 processStatusSvc(filePath);
-                move = true;
             }
 
             // Move file to 'completed' folder on success (status or audit only)
-            if (move) {
-                completedFilesToMove.put(
-                        filePath, completedDir + timestamp + "/" + getFileName(filePath));
-            }
+            completedFilesToMove.put(
+                    filePath, completedDir + timestamp + "/" + getFileName(filePath));
 
         } catch (Exception e) {
             erredFilesToMove.put(filePath, errorsDir + timestamp + "/" + getFileName(filePath));
@@ -221,7 +218,7 @@ public class TransformerService {
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processAuditSvc")));
             if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResultMsg());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
 
         } catch (Exception e) {
@@ -267,7 +264,7 @@ public class TransformerService {
                             new RequestSuccessLog("Request Success", "processStatusSvc")));
 
             if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResultMsg());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
         } catch (Exception e) {
             log.error(
@@ -294,15 +291,24 @@ public class TransformerService {
         SaveErrorRequest req = new SaveErrorRequest(errMsg, date, fileName, fileContentXml);
         HttpEntity<SaveErrorRequest> payload = new HttpEntity<>(req, new HttpHeaders());
         try {
-            HttpEntity<Map<String, String>> response =
+            HttpEntity<SaveErrorResponse> response =
                     restTemplate.exchange(
                             builder.toUriString(),
                             HttpMethod.POST,
                             payload,
-                            new ParameterizedTypeReference<>() {});
+                            SaveErrorResponse.class);
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "SaveError")));
+            if (!response.getBody().getResultCd().equals("0")) {
+                log.error(
+                        objectMapper.writeValueAsString(
+                                new OrdsErrorLog(
+                                        "Error received from ORDS",
+                                        "SaveError",
+                                        response.getBody().getResponseMessageTxt(),
+                                        req)));
+            }
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -461,7 +467,7 @@ public class TransformerService {
                                                 FilenameUtils.getName(pdf),
                                                 response.getBody().getObjectGuid()));
                     } else {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -505,7 +511,7 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessCCsXML")));
 
                     if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -542,7 +548,7 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessLettersXML")));
 
                     if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResultMsg());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
                     log.error(
@@ -595,7 +601,7 @@ public class TransformerService {
                                 new RequestSuccessLog("Request Success", "processReportSvc")));
 
                 if (!response.getBody().getResultCd().equals("0")) {
-                    throw new ORDSException(response.getBody().getResultMsg());
+                    throw new ORDSException(response.getBody().getResponseMessageTxt());
                 }
             } catch (Exception e) {
                 log.error(

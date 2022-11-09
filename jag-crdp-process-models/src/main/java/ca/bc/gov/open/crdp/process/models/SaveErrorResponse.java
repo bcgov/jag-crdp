@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProcessCCsResponse implements Serializable {
+public class SaveErrorResponse implements Serializable {
     private String resultCd;
     private String responseMessageTxt;
 }

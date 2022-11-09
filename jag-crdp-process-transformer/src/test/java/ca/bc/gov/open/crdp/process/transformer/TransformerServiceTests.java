@@ -226,7 +226,6 @@ public class TransformerServiceTests {
     @Test
     public void processReportsSvcTest() throws IOException {
         var folderName = inFileDir + "Processed_2020-03-24/R-Lists/";
-        var folderShortName = "R-Lists";
         var processedDate = "2020-03-24";
 
         //     Set up to mock ords response
@@ -249,7 +248,6 @@ public class TransformerServiceTests {
     @Test
     public void processReportsSvcTestFail() throws IOException {
         var folderName = inFileDir + "Processed_2020-03-24/R-Lists/";
-        var folderShortName = "R-Lists";
         var processedDate = "2020-03-24";
 
         // Set up to mock ords response
@@ -271,15 +269,18 @@ public class TransformerServiceTests {
         String fileName = "AA";
         String fileContentXml = "AA";
 
-        Map<String, String> m = new HashMap<>();
-        ResponseEntity<Map<String, String>> responseEntity = new ResponseEntity<>(m, HttpStatus.OK);
+        SaveErrorResponse resp = new SaveErrorResponse();
+        resp.setResultCd("0");
+        resp.setResponseMessageTxt("AA");
+        ResponseEntity<SaveErrorResponse> responseEntity =
+                new ResponseEntity<>(resp, HttpStatus.OK);
 
         // Set up to mock ords response
         when(restTemplate.exchange(
                         AdditionalMatchers.not(contains("tokenvalue")),
                         Mockito.eq(HttpMethod.POST),
                         Mockito.<HttpEntity<String>>any(),
-                        Mockito.<ParameterizedTypeReference<Map<String, String>>>any()))
+                        Mockito.<Class<SaveErrorResponse>>any()))
                 .thenReturn(responseEntity);
 
         controller.saveError(

@@ -15,13 +15,15 @@ bcgov:
     host: ${SFEG_HOST:localhost}
     port: ${SFEG_PORT:22}
     username: ${SFEG_USERNAME}
-    remote-location: ${NFS_DIR}
+    remote-location: ${NFS_DIR:/}
     known-hosts-file-name: ${SFTP_KNOWN_HOSTS}
     ssh-private-key: ${SFTP_PRIVATE_KEY}
 
 spring:
   rabbitmq:
     host: ${RABBIT_MQ_HOST}
+    username: ${RABBIT_MQ_USERNAME}
+    password: ${RABBIT_MQ_PASSWORD}
     port: 5672
 
 management:
@@ -30,5 +32,3 @@ management:
       exposure:
         include: metrics,prometheus,health
 
-server:
-  port: 8084

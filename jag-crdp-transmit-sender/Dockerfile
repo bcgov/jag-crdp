@@ -3,5 +3,14 @@ FROM eclipse-temurin:11-jre-alpine
 RUN apk upgrade expat
 
 COPY ./target/jag-crdp-transmit-sender.jar jag-crdp-transmit-sender.jar
+RUN mkdir .ssh
+RUN touch .ssh/known_hosts
+RUN touch .ssh/id_rsa
+RUN chgrp -R 0 .ssh && \
+        chmod -R g=u .ssh
+
+RUN mkdir temp-xmls
+RUN chgrp -R 0 temp-xmls && \
+        chmod -R g=u temp-xmls
 
 ENTRYPOINT ["java", "-jar","/jag-crdp-transmit-sender.jar"]

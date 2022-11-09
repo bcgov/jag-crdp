@@ -29,6 +29,5 @@ public class ConsumerService {
             throws IOException {
         senderService.updateTransmissionSent(message.getPayload());
         senderService.sendXmlFile(message.getPayload());
-        System.out.println(objectMapper.writeValueAsString(message.getPayload()));
     }
 }

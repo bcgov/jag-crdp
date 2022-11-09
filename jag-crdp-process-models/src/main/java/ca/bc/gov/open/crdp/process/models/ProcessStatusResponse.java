@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProcessStatusResponse implements Serializable {
     private String resultCd;
-    private String resultMsg;
+    private String responseMessageTxt;
 }
