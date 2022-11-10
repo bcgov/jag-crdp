@@ -15,7 +15,7 @@ bcgov:
     host: ${SFEG_HOST:localhost}
     port: ${SFEG_PORT:22}
     username: ${SFEG_USERNAME}
-    remote-location: ${NFS_DIR:/}
+    remote-location: ${NFS_DIR:}
     known-hosts-file-name: ${SFTP_KNOWN_HOSTS}
     ssh-private-key: ${SFTP_PRIVATE_KEY}
 
@@ -31,4 +31,3 @@ management:
     web:
       exposure:
         include: metrics,prometheus,health
-
