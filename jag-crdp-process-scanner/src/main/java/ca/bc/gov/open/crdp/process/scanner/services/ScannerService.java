@@ -129,6 +129,9 @@ public class ScannerService {
                 return;
             }
 
+            // create inProgress folder
+            fileService.makeFolder(inProgressDir + "/" + customFormatter.format(scanDateTime));
+
             try {
                 // move files into in-progress folder
                 for (Entry<String, String> m : inProgressFilesToMove.entrySet()) {
