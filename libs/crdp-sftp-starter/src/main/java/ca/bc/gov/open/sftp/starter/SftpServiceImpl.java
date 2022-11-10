@@ -183,7 +183,7 @@ public class SftpServiceImpl implements FileService {
                             logger.debug("Attempting to list files in [{}]", sftpRemoteDirectory);
                             ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) fileList.get(i);
                             logger.debug("Successfully to list files in [{}]", sftpRemoteDirectory);
-                            result.add(lsEntry.getFilename());
+                            result.add(lsEntry.getLongname());
                         }
                     } catch (Exception e) {
                         logger.error(sftpRemoteDirectory + ": " + e.getMessage());

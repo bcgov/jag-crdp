@@ -121,7 +121,7 @@ public class ScannerService {
             try {
                 recursiveScan(arr, 0, 0);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error(ex.getMessage());
             }
 
             if (inProgressFilesToMove.isEmpty() && inProgressFoldersToMove.isEmpty()) {
