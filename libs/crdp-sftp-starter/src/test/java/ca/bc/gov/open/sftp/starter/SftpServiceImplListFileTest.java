@@ -108,7 +108,9 @@ public class SftpServiceImplListFileTest {
         List<String> actual = sut.listFiles(CASE_3);
 
         Assertions.assertEquals(3, actual.size());
-        Assertions.assertTrue(actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_1));
-        Assertions.assertTrue(actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_2));
+        Assertions.assertTrue(
+                actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_1));
+        Assertions.assertTrue(
+                actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_2));
     }
 }
