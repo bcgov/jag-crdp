@@ -94,12 +94,27 @@ public class ScannerService {
 
         scanDateTime = LocalDateTime.now();
 
+        log.info(
+                "inFileDir:"
+                        + inFileDir
+                        + " exists:"
+                        + fileService.exists(inFileDir)
+                        + " isDirectory:"
+                        + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
             // create inProgress folder
+            log.info(
+                    "inProgressDir:"
+                            + inProgressDir
+                            + " exists:"
+                            + fileService.exists(inProgressDir));
             if (!fileService.exists(inProgressDir)) {
+                log.info("Making inProgressDir:" + inProgressDir);
                 fileService.makeFolder(inProgressDir);
             }
-
+            for (String f : fileService.listFiles(inFileDir)) {
+                log.info("listing inFileDir Files:" + f);
+            }
             String[] arr = fileService.listFiles(inFileDir).toArray(new String[0]);
 
             // Calling recursive method
