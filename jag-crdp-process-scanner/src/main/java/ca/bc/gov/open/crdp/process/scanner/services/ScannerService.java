@@ -102,7 +102,6 @@ public class ScannerService {
                         + " isDirectory:"
                         + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
-            fileService.removeFolder(inProgressDir);
             // create inProgress folder
             log.info(
                     "inProgressDir:"
