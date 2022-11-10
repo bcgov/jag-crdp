@@ -103,7 +103,7 @@ public class SenderService {
             FileUtils.writeStringToFile(
                     f, xmlPub.getXmlString(), String.valueOf(StandardCharsets.UTF_8));
             // SCP the file to a server
-            sftpTransfer(outFileDir + xmlPub.getFileName(), f);
+            sftpTransfer(outFileDir + "/" + xmlPub.getFileName(), f);
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "sendXmlFile")));

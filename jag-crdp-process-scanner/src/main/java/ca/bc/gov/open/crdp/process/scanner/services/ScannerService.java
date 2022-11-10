@@ -182,6 +182,7 @@ public class ScannerService {
                 inProgressFilesToMove.put(
                         arr[index],
                         inProgressDir
+                                + "/"
                                 + customFormatter.format(scanDateTime)
                                 + "/"
                                 + Paths.get(arr[index]).getFileName().toString());
@@ -203,6 +204,7 @@ public class ScannerService {
                         inProgressFoldersToMove.put(
                                 arr[index],
                                 inProgressDir
+                                        + "/"
                                         + customFormatter.format(scanDateTime)
                                         + "/"
                                         + processFolderName
