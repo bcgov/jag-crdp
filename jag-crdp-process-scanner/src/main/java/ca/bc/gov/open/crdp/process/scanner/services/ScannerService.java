@@ -129,17 +129,16 @@ public class ScannerService {
                 return;
             }
 
-            // create inProgress folder
-            fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
-
             try {
                 // move files into in-progress folder
                 for (Entry<String, String> m : inProgressFilesToMove.entrySet()) {
+                    log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
 
                 for (Entry<String, String> m : inProgressFoldersToMove.entrySet()) {
+                    log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
