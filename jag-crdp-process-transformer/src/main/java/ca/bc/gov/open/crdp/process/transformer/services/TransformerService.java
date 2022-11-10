@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -128,7 +127,7 @@ public class TransformerService {
             try {
                 // create completed folder with last scanning timestamp
                 if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(completedDir + timestamp);
+                    fileService.makeFolder(completedDir + "/" + timestamp);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -139,7 +138,7 @@ public class TransformerService {
 
                 // create errors folder with last scanning timestamp
                 if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(errorsDir + timestamp);
+                    fileService.makeFolder(errorsDir + "/" + timestamp);
                 }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -158,14 +157,13 @@ public class TransformerService {
 
     private void cleanUp(String inProgressDir) {
         for (String folder : fileService.listFiles(inProgressDir)) {
-            if (fileService.listFiles(folder).size() == 0) {
-                fileService.removeFolder(folder);
-                continue;
-            }
             for (String f : fileService.listFiles(folder)) {
                 if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
                     fileService.removeFolder(f);
                 }
+            }
+            if (fileService.listFiles(folder).size() == 0) {
+                fileService.removeFolder(folder);
             }
         }
     }
@@ -184,10 +182,11 @@ public class TransformerService {
 
             // Move file to 'completed' folder on success (status or audit only)
             completedFilesToMove.put(
-                    filePath, completedDir + timestamp + "/" + getFileName(filePath));
+                    filePath, completedDir + "/" + timestamp + "/" + getFileName(filePath));
 
         } catch (Exception e) {
-            erredFilesToMove.put(filePath, errorsDir + timestamp + "/" + getFileName(filePath));
+            erredFilesToMove.put(
+                    filePath, errorsDir + "/" + timestamp + "/" + getFileName(filePath));
         }
     }
 
@@ -361,13 +360,13 @@ public class TransformerService {
             // Add the processed folder and its target location to the processedFolders map
             // dealt with at the end of processing.
             completedFoldersToMove.put(
-                    folderPath, completedDir + timestamp + "/" + getFileName(folderPath));
+                    folderPath, completedDir + "/" + timestamp + "/" + getFileName(folderPath));
 
         } catch (Exception e) {
             // Add the erred folder path and its target location to the erred folders map
             // dealt with at the end of processing.
             erredFoldersToMove.put(
-                    folderPath, errorsDir + timestamp + "/" + getFileName(folderPath));
+                    folderPath, errorsDir + "/" + timestamp + "/" + getFileName(folderPath));
         }
     }
 
@@ -491,8 +490,7 @@ public class TransformerService {
             JAXB.marshal(guidMapDocument, sw);
             String xml = sw.toString();
 
-            ProcessXMLRequest req =
-                    new ProcessXMLRequest(document, xml.getBytes(StandardCharsets.UTF_8));
+            ProcessXMLRequest req = new ProcessXMLRequest(document, xml);
             if (folderShortName.equals("CCs")) {
                 UriComponentsBuilder builder3 =
                         UriComponentsBuilder.fromHttpUrl(host + "doc/processCCs");

@@ -10,5 +10,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProcessXMLRequest implements Serializable {
     private byte[] ccDocument;
-    private byte[] map;
+    private String map;
 }
