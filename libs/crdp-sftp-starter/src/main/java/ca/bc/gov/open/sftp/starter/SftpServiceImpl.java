@@ -243,6 +243,36 @@ public class SftpServiceImpl implements FileService {
     }
 
     /**
+     * Create a folder with permission setup
+     *
+     * @param folderPath
+     * @param permission
+     */
+    @Override
+    public void makeFolder(String folderPath, Integer permission) {
+        makeFolder(folderPath);
+        String remoteFilePath = getFilePath(folderPath);
+        executeSftpFunction(
+                channelSftp -> {
+                    try {
+                        logger.info("chmod " + permission);
+                        channelSftp.chmod(permission, remoteFilePath);
+                        logger.info("chmod completed " + permission);
+                        logger.debug("Successfully chmod of folder [{}]", remoteFilePath);
+                    } catch (Exception e) {
+                        logger.error(
+                                "Failed to chmod "
+                                        + permission
+                                        + " to "
+                                        + remoteFilePath
+                                        + ": "
+                                        + e.getMessage());
+                        throw e;
+                    }
+                });
+    }
+
+    /**
      * Check if a file exists
      *
      * @param filePath

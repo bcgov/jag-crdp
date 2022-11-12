@@ -132,6 +132,27 @@ public class LocalFileImpl implements FileService {
     }
 
     /**
+     * Create a folder with permission setup
+     *
+     * @param folderPath
+     * @param permission
+     */
+    @Override
+    public void makeFolder(String folderPath, Integer permission) {
+        makeFolder(folderPath);
+        File target = new File(folderPath);
+        try {
+            // Windows permissions are set to 777 by default
+            // Note that this API will need upgrade
+            target.setReadable(true);
+            target.setWritable(true);
+            target.setExecutable(true);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
      * Check if a file exists
      *
      * @param filePath

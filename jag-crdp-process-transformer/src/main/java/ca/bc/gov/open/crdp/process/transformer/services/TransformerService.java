@@ -53,6 +53,8 @@ public class TransformerService {
     @Value("${crdp.sftp-enabled}")
     private String sftpEnabled = "true";
 
+    private Integer PERMISSIONS_DECIMAL = 493;
+
     private String timestamp = null;
 
     @Autowired JschSessionProvider jschSessionProvider;
@@ -108,12 +110,12 @@ public class TransformerService {
         if (fileService.exists(inProgressDir) && fileService.isDirectory(inProgressDir)) {
             // create Completed folder
             if (!fileService.exists(completedDir)) {
-                fileService.makeFolder(completedDir);
+                fileService.makeFolder(completedDir, PERMISSIONS_DECIMAL);
             }
 
             // create Errors folder
             if (!fileService.exists(errorsDir)) {
-                fileService.makeFolder(errorsDir);
+                fileService.makeFolder(errorsDir, PERMISSIONS_DECIMAL);
             }
 
             if (!fileService.isDirectory(pub.getFilePath())) {
@@ -127,7 +129,7 @@ public class TransformerService {
             try {
                 // create completed folder with last scanning timestamp
                 if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(completedDir + "/" + timestamp);
+                    fileService.makeFolder(completedDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -138,7 +140,7 @@ public class TransformerService {
 
                 // create errors folder with last scanning timestamp
                 if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(errorsDir + "/" + timestamp);
+                    fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());

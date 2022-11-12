@@ -40,6 +40,8 @@ public class ScannerService {
     @Value("${crdp.sftp-enabled}")
     private String sftpEnabled = "true";
 
+    private Integer PERMISSIONS_DECIMAL = 493;
+
     @Autowired JschSessionProvider jschSessionProvider;
     private FileService fileService;
     private final SftpProperties sftpProperties;
@@ -110,7 +112,8 @@ public class ScannerService {
                             + fileService.exists(inProgressDir));
             if (!fileService.exists(inProgressDir)) {
                 log.info("Making inProgressDir:" + inProgressDir);
-                fileService.makeFolder(inProgressDir);
+                // 493 -> 111 101 101 -> 755
+                fileService.makeFolder(inProgressDir, PERMISSIONS_DECIMAL);
             }
             for (String f : fileService.listFiles(inFileDir)) {
                 log.info("listing inFileDir Files:" + f);
@@ -130,7 +133,10 @@ public class ScannerService {
             }
 
             // create inProgress folder
-            fileService.makeFolder(inProgressDir + "/" + customFormatter.format(scanDateTime));
+            // 493 -> 111 101 101 -> 755
+            fileService.makeFolder(
+                    inProgressDir + "/" + customFormatter.format(scanDateTime),
+                    PERMISSIONS_DECIMAL);
 
             try {
                 // move files into in-progress folder
