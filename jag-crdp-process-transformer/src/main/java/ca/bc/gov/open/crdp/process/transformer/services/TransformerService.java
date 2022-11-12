@@ -160,7 +160,9 @@ public class TransformerService {
     private void cleanUp(String processingDir) {
         for (String folder : fileService.listFiles(processingDir)) {
             for (String f : fileService.listFiles(folder)) {
-                if (!(getFileName(f).equals(".") || getFileName(f).equals("..")) && fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
+                if (!(getFileName(f).equals(".") || getFileName(f).equals(".."))
+                        && fileService.isDirectory(f)
+                        && fileService.listFiles(f).size() == 0) {
                     fileService.removeFolder(f);
                 }
             }
