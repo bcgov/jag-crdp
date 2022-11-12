@@ -4,7 +4,7 @@ security:
     username: ${BASIC_AUTH_USER}
 crdp:
   host: ${ORDS_HOST}
-  in-progress-dir: ${IN_PROGRESS_DIR}
+  processing-dir: ${PROCESSING_DIR}
   completed-dir: ${COMPLETED_DIR}
   errors-dir: ${ERRORS_DIR}
   scanner-queue: ${SCANNER_QUEUE_NAME}
