@@ -4,7 +4,7 @@ security:
     username: ${BASIC_AUTH_USER}
 crdp:
   in-file-dir: ${INCOMING_FILE_DIR}
-  in-progress-dir: ${IN_PROGRESS_DIR}
+  progressing-dir: ${PROCESSING_DIR}
   record-ttl-hour: ${RECORD_TTL_HOUR}
   cron-job-incoming-file: ${CRON_JOB_INCOMING_FILE}
   sftp-enabled: ${SFTP_ENABLED}

@@ -31,8 +31,8 @@ public class ScannerService {
     @Value("${crdp.in-file-dir}")
     private String inFileDir = "/";
 
-    @Value("${crdp.in-progress-dir}")
-    private String inProgressDir = "/";
+    @Value("${crdp.progressing-dir}")
+    private String processingDir = "/";
 
     @Value("${crdp.record-ttl-hour}")
     private int recordTTLHour = 24;
@@ -57,8 +57,8 @@ public class ScannerService {
     private static String
             processFolderName; // current "Processed_yyyy_nn" folder name (not full path).
 
-    private static TreeMap<String, String> inProgressFilesToMove = new TreeMap<String, String>();
-    private static TreeMap<String, String> inProgressFoldersToMove =
+    private static TreeMap<String, String> processingFilesToMove = new TreeMap<String, String>();
+    private static TreeMap<String, String> processingFoldersToMove =
             new TreeMap<String, String>(); // completed files.
 
     LocalDateTime scanDateTime;
@@ -91,8 +91,8 @@ public class ScannerService {
                         : new LocalFileImpl();
 
         // re-initialize arrays
-        inProgressFilesToMove = new TreeMap<String, String>();
-        inProgressFoldersToMove = new TreeMap<String, String>();
+        processingFilesToMove = new TreeMap<String, String>();
+        processingFoldersToMove = new TreeMap<String, String>();
 
         scanDateTime = LocalDateTime.now();
 
@@ -104,16 +104,16 @@ public class ScannerService {
                         + " isDirectory:"
                         + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
-            // create inProgress folder
+            // create Processing folder
             log.info(
-                    "inProgressDir:"
-                            + inProgressDir
+                    "ProcessingDir:"
+                            + processingDir
                             + " exists:"
-                            + fileService.exists(inProgressDir));
-            if (!fileService.exists(inProgressDir)) {
-                log.info("Making inProgressDir:" + inProgressDir);
+                            + fileService.exists(processingDir));
+            if (!fileService.exists(processingDir)) {
+                log.info("Making Processing Dir:" + processingDir);
                 // 493 -> 111 101 101 -> 755
-                fileService.makeFolder(inProgressDir, PERMISSIONS_DECIMAL);
+                fileService.makeFolder(processingDir, PERMISSIONS_DECIMAL);
             }
             for (String f : fileService.listFiles(inFileDir)) {
                 log.info("listing inFileDir Files:" + f);
@@ -127,26 +127,26 @@ public class ScannerService {
                 log.error(ex.getMessage());
             }
 
-            if (inProgressFilesToMove.isEmpty() && inProgressFoldersToMove.isEmpty()) {
+            if (processingFilesToMove.isEmpty() && processingFoldersToMove.isEmpty()) {
                 log.info("No file/fold found, closing current scan session: " + scanDateTime);
                 return;
             }
 
-            // create inProgress folder
+            // create Processing/Datetime folder
             // 493 -> 111 101 101 -> 755
             fileService.makeFolder(
-                    inProgressDir + "/" + customFormatter.format(scanDateTime),
+                    processingDir + "/" + customFormatter.format(scanDateTime),
                     PERMISSIONS_DECIMAL);
 
             try {
-                // move files into in-progress folder
-                for (Entry<String, String> m : inProgressFilesToMove.entrySet()) {
+                // move files into processing folder
+                for (Entry<String, String> m : processingFilesToMove.entrySet()) {
                     log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
 
-                for (Entry<String, String> m : inProgressFoldersToMove.entrySet()) {
+                for (Entry<String, String> m : processingFoldersToMove.entrySet()) {
                     log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
@@ -164,7 +164,7 @@ public class ScannerService {
     private void cleanUp(String headFolderPath) {
         // delete processed folders (delivered from Ottawa).
         for (var folder : fileService.listFiles(headFolderPath)) {
-            if (!fileService.isDirectory(folder) || getFileName(folder).equals("inProgress")) {
+            if (!fileService.isDirectory(folder) || getFileName(folder).equals("Processing") || (getFileName(folder).equals(".") || getFileName(folder).equals(".."))) {
                 continue;
             }
 
@@ -187,9 +187,9 @@ public class ScannerService {
         try {
             // for root folder files (Audit and Status).
             if (!fileService.isDirectory(arr[index])) {
-                inProgressFilesToMove.put(
+                processingFilesToMove.put(
                         arr[index],
-                        inProgressDir
+                        processingDir
                                 + "/"
                                 + customFormatter.format(scanDateTime)
                                 + "/"
@@ -209,9 +209,9 @@ public class ScannerService {
                             || "Letters".equals(getFileName(arr[index]))
                             || "R-Lists".equals(getFileName(arr[index]))
                             || "JUS178s".equals(getFileName(arr[index]))) {
-                        inProgressFoldersToMove.put(
+                        processingFoldersToMove.put(
                                 arr[index],
-                                inProgressDir
+                                processingDir
                                         + "/"
                                         + customFormatter.format(scanDateTime)
                                         + "/"

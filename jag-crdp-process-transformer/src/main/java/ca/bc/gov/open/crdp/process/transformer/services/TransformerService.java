@@ -41,8 +41,8 @@ public class TransformerService {
     @Value("${crdp.host}")
     private String host = "https://127.0.0.1/";
 
-    @Value("${crdp.in-progress-dir}")
-    private String inProgressDir = "/";
+    @Value("${crdp.processing-dir}")
+    private String processingDir = "/";
 
     @Value("${crdp.completed-dir}")
     private String completedDir = "/";
@@ -107,7 +107,7 @@ public class TransformerService {
 
         this.timestamp = pub.getDateTime();
 
-        if (fileService.exists(inProgressDir) && fileService.isDirectory(inProgressDir)) {
+        if (fileService.exists(processingDir) && fileService.isDirectory(processingDir)) {
             // create Completed folder
             if (!fileService.exists(completedDir)) {
                 fileService.makeFolder(completedDir, PERMISSIONS_DECIMAL);
@@ -148,19 +148,19 @@ public class TransformerService {
                 for (Map.Entry<String, String> m : erredFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-                cleanUp(inProgressDir);
+                cleanUp(processingDir);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
         } else {
-            log.error("InProgress directory \"" + inProgressDir + "\" does not exist");
+            log.error("Processing directory \"" + processingDir + "\" does not exist");
         }
     }
 
-    private void cleanUp(String inProgressDir) {
-        for (String folder : fileService.listFiles(inProgressDir)) {
+    private void cleanUp(String processingDir) {
+        for (String folder : fileService.listFiles(processingDir)) {
             for (String f : fileService.listFiles(folder)) {
-                if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
+                if (!(getFileName(f).equals(".") || getFileName(f).equals("..")) && fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
                     fileService.removeFolder(f);
                 }
             }
