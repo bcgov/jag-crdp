@@ -231,9 +231,6 @@ public class SftpServiceImpl implements FileService {
                 channelSftp -> {
                     try {
                         channelSftp.mkdir(remoteFilePath);
-                        logger.info("chmod 755");
-                        channelSftp.chmod(755, remoteFilePath);
-                        logger.info("chmod 755 completed");
                         logger.debug("Successfully created folder [{}]", remoteFilePath);
                     } catch (Exception e) {
                         logger.error("Failed to make " + remoteFilePath + ": " + e.getMessage());
