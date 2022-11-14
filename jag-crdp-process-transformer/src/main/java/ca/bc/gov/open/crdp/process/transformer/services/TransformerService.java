@@ -74,14 +74,10 @@ public class TransformerService {
     private static TreeMap<String, String> erredFoldersToMove =
             new TreeMap<String, String>(); // erred folders.
 
-    private static String auditSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingAudit.xsd";
-    private static String ccSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingCCs.xsd";
-    private static String lettersSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingLetters.xsd";
-    private static String statusSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingStatus.xsd";
+    private static String auditSchemaPath = "xsdSchemas/outgoingAudit.xsd";
+    private static String ccSchemaPath = "xsdSchemas/outgoingCCs.xsd";
+    private static String lettersSchemaPath = "xsdSchemas/outgoingLetters.xsd";
+    private static String statusSchemaPath = "xsdSchemas/outgoingStatus.xsd";
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
 
