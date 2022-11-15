@@ -1,25 +1,18 @@
 package ca.bc.gov.open.crdp.process.transformer;
 
-import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.Mockito.*;
 
-import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.crdp.process.transformer.services.TransformerService;
 import ca.bc.gov.open.sftp.starter.FileService;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.*;
-import org.mockito.AdditionalMatchers;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
