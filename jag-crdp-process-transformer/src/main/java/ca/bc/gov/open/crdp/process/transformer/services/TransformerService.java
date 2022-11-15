@@ -240,7 +240,8 @@ public class TransformerService {
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + fileName);
+            File f = new File(statusSchemaPath);
+            throw new IOException("XML file schema validation failed. fileName : " + fileName + "statusSchemaPath: " + f.getCanonicalPath());
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
@@ -626,8 +627,6 @@ public class TransformerService {
     public boolean validateXml(String xsdPath, InputStream xmlFile) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
-        log.info(xsdPath);
-        log.info(xmlFile.toString());
         try {
             Schema schema = factory.newSchema(schemaFile);
             schema.newValidator().validate(new StreamSource(xmlFile));
