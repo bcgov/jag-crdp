@@ -6,10 +6,10 @@ import static org.mockito.Mockito.*;
 import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.crdp.process.transformer.services.TransformerService;
+import ca.bc.gov.open.sftp.starter.FileService;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,6 +31,7 @@ public class TransformerServiceTests {
 
     @Mock private ObjectMapper objectMapper;
     @Mock private RestTemplate restTemplate;
+    @Mock private FileService fileService;
     @Mock private TransformerService controller;
     @Mock private SftpProperties sftpProperties;
 
@@ -72,7 +73,7 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processAuditSvc(fileName);
     }
@@ -89,13 +90,13 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         Assertions.assertThrows(ORDSException.class, () -> controller.processAuditSvc(fileName));
     }
 
     @Test
-    public void processAuditSvcTestInvalidXml() {
+    public void processAuditSvcTestInvalidXml() throws FileNotFoundException {
         var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
@@ -110,7 +111,10 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
+
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
         Assertions.assertThrows(IOException.class, () -> controller.processAuditSvc(fileName));
     }
@@ -132,7 +136,7 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processStatusSvc(fileName);
     }
@@ -149,13 +153,13 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc(fileName));
     }
 
     @Test
-    public void processStatusSvcTestInvalidXml() {
+    public void processStatusSvcTestInvalidXml() throws FileNotFoundException {
         var fileName = inFileDir + "ABCDO_Status.000001.XML";
         var processStatusResponse = new ProcessStatusResponse();
         processStatusResponse.setResultCd("0");
@@ -170,7 +174,10 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(File.class)))
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
+
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
         Assertions.assertThrows(IOException.class, () -> controller.processStatusSvc(fileName));
     }
