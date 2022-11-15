@@ -73,6 +73,9 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
+
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processAuditSvc(fileName);
@@ -88,6 +91,9 @@ public class TransformerServiceTests {
                         Mockito.<HttpEntity<String>>any(),
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenThrow(ORDSException.class);
+
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
 
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
@@ -136,13 +142,15 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processStatusSvc(fileName);
     }
 
     @Test
-    public void processStatusSvcTestFail() {
+    public void processStatusSvcTestFail() throws FileNotFoundException {
         var fileName = inFileDir + "ABCDO_Status.000001.XML";
 
         when(restTemplate.exchange(
@@ -152,6 +160,8 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenThrow(ORDSException.class);
 
+        InputStream inputStream = new FileInputStream(fileName);
+        when(fileService.get(fileName)).thenReturn(inputStream);
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
