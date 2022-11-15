@@ -44,3 +44,4 @@ cc-test-reporter
 /*.xml
 /temp-xmls/*
 /test/home/*
+/xsdSchemas/*
