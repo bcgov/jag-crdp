@@ -42,7 +42,7 @@ public class TransformerServiceTests {
         controller =
                 Mockito.spy(new TransformerService(restTemplate, objectMapper, sftpProperties));
 
-        String appPath = new File("").getCanonicalPath();
+        String appPath = new File("").getAbsolutePath();
         inFileDir = appPath + "/src/test/resources/test/processingIncoming/";
 
         File backupFolder = new File(appPath + "/src/test/resources/backup/");
