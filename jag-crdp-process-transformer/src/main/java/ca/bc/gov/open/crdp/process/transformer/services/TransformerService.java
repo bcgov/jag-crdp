@@ -192,7 +192,7 @@ public class TransformerService {
     public void processAuditSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(auditSchemaPath, fileService.get(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + fileName);
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-audit");
 
@@ -241,7 +241,11 @@ public class TransformerService {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
             File f = new File(statusSchemaPath);
-            throw new IOException("XML file schema validation failed. fileName : " + fileName + "statusSchemaPath: " + f.getCanonicalPath());
+            throw new IOException(
+                    "XML file schema validation failed. fileName: "
+                            + fileName
+                            + "statusSchemaPath: "
+                            + f.getCanonicalPath());
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
@@ -400,7 +404,7 @@ public class TransformerService {
         if (!isValid) {
             xmlFile.close();
             throw new IOException(
-                    "XML file schema validation failed. fileName : " + folderName + fileName);
+                    "XML file schema validation failed. fileName: " + folderName + fileName);
         }
 
         byte[] document = IOUtils.toByteArray(xmlFile);
