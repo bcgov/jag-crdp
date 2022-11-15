@@ -7,10 +7,7 @@ import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.sftp.starter.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.StringWriter;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -24,6 +21,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -87,6 +85,7 @@ public class TransformerService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.sftpProperties = sftpProperties;
+        fileService = new LocalFileImpl();
     }
 
     public void processFileService(ScannerPub pub) {
@@ -192,14 +191,14 @@ public class TransformerService {
 
     public void processAuditSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
-        File xmlFile = new File(fileName);
-        if (!validateXml(auditSchemaPath, new File(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + xmlFile);
+        if (!validateXml(auditSchemaPath, fileService.get(fileName))) {
+            throw new IOException("XML file schema validation failed. fileName : " + fileName);
         }
-
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-audit");
 
-        byte[] file = readFile(xmlFile);
+        InputStream xmlFile = fileService.get(fileName);
+        byte[] file = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         ProcessAuditRequest req = new ProcessAuditRequest(shortFileName, file);
         // Send ORDS request
@@ -240,13 +239,14 @@ public class TransformerService {
 
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
-        File xmlFile = new File(fileName);
-        if (!validateXml(statusSchemaPath, xmlFile)) {
-            throw new IOException("XML file schema validation failed. fileName : " + xmlFile);
+        if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
+            throw new IOException("XML file schema validation failed. fileName : " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
-        byte[] file = readFile(xmlFile);
+        InputStream xmlFile = fileService.get(fileName);
+        byte[] file = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         ProcessStatusRequest req = new ProcessStatusRequest(shortFileName, file);
         HttpEntity<ProcessStatusRequest> payload = new HttpEntity<>(req, new HttpHeaders());
@@ -382,26 +382,28 @@ public class TransformerService {
         fileList = f.list();
         String fileName = "";
         boolean isValid = false;
-        File xmlFile = null;
+        InputStream xmlFile = null;
         if (folderShortName.equals("CCs")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_CCs.XML");
-            xmlFile = new File(folderName + "/" + fileName);
-            isValid = validateXml(ccSchemaPath, xmlFile);
+            xmlFile = fileService.get(folderName + "/" + fileName);
+            isValid = validateXml(ccSchemaPath, fileService.get(folderName + "/" + fileName));
         } else if (folderShortName.equals("Letters")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_Letters.XML");
-            xmlFile = new File(folderName + "/" + fileName);
-            isValid = validateXml(lettersSchemaPath, xmlFile);
+            xmlFile = fileService.get(folderName + "/" + fileName);
+            isValid = validateXml(lettersSchemaPath, fileService.get(folderName + "/" + fileName));
         } else {
-            log.error("Unexpected folder short name: " + folderShortName);
-            return;
+            xmlFile.close();
+            throw new IOException("Unexpected folder short name: " + folderShortName);
         }
 
         if (!isValid) {
+            xmlFile.close();
             throw new IOException(
                     "XML file schema validation failed. fileName : " + folderName + fileName);
         }
 
-        byte[] document = readFile(xmlFile);
+        byte[] document = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         UriComponentsBuilder builder =
                 UriComponentsBuilder.fromHttpUrl(host + "doc/status")
@@ -581,11 +583,11 @@ public class TransformerService {
         for (String pdf : pdfs) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "rpt");
 
-            File reqPDF = new File(pdf);
-            byte[] file = readFile(reqPDF);
+            InputStream reqPDF = fileService.get(pdf);
+            byte[] file = IOUtils.toByteArray(reqPDF);
+            reqPDF.close();
 
-            ProcessReportRequest req =
-                    new ProcessReportRequest(reqPDF.getName(), processedDate, file);
+            ProcessReportRequest req = new ProcessReportRequest(pdf, processedDate, file);
             HttpEntity<ProcessReportRequest> payload = new HttpEntity<>(req, new HttpHeaders());
             try {
                 HttpEntity<ProcessReportResponse> response =
@@ -621,7 +623,7 @@ public class TransformerService {
         }
     }
 
-    public boolean validateXml(String xsdPath, File xmlFile) {
+    public boolean validateXml(String xsdPath, InputStream xmlFile) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
         try {

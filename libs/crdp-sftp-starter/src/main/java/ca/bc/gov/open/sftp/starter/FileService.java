@@ -8,6 +8,8 @@ public interface FileService {
 
     ByteArrayInputStream getContent(String filename);
 
+    InputStream get(String fileName);
+
     void put(String inputFileName, String remoteFileName);
 
     void put(InputStream inputStream, String remoteFileName);

@@ -33,6 +33,25 @@ public class LocalFileImpl implements FileService {
     }
 
     /**
+     * Get the file from the destination
+     *
+     * @param fileName
+     */
+    @Override
+    public InputStream get(String fileName) {
+        InputStream targetStream = null;
+        File file = new File(fileName);
+        try {
+            targetStream = new FileInputStream(file);
+        } catch (Exception e) {
+            logger.error("Failed to get " + fileName + ": " + e.getMessage());
+        } finally {
+            file.delete();
+        }
+        return targetStream;
+    }
+
+    /**
      * Put the file to a destination
      *
      * @param inputFileName
