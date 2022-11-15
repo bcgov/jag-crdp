@@ -73,9 +73,6 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
-
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processAuditSvc(fileName);
@@ -91,9 +88,6 @@ public class TransformerServiceTests {
                         Mockito.<HttpEntity<String>>any(),
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenThrow(ORDSException.class);
-
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
 
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
@@ -117,9 +111,6 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
-
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
         Assertions.assertThrows(IOException.class, () -> controller.processAuditSvc(fileName));
@@ -142,8 +133,6 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         controller.processStatusSvc(fileName);
@@ -160,8 +149,6 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenThrow(ORDSException.class);
 
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
@@ -183,9 +170,6 @@ public class TransformerServiceTests {
                         Mockito.<HttpEntity<String>>any(),
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
-
-        InputStream inputStream = new FileInputStream(fileName);
-        when(fileService.get(fileName)).thenReturn(inputStream);
 
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
@@ -236,6 +220,10 @@ public class TransformerServiceTests {
                         Mockito.<HttpEntity<String>>any(),
                         Mockito.<Class<ProcessCCsResponse>>any()))
                 .thenReturn(responseEntity2);
+
+        // mock the file is a valid xml
+        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
+                .thenReturn(true);
 
         controller.processDocumentsSvc(folderName, folderShortName, processedDate);
     }
