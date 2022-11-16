@@ -149,7 +149,7 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
+        when(controller.validateXml(Mockito.anyString(), Mockito.any(InputStream.class)))
                 .thenReturn(true);
         Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc(fileName));
     }
