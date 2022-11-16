@@ -81,11 +81,14 @@ public class TransformerService {
 
     @Autowired
     public TransformerService(
-            RestTemplate restTemplate, ObjectMapper objectMapper, SftpProperties sftpProperties) {
+            RestTemplate restTemplate,
+            ObjectMapper objectMapper,
+            SftpProperties sftpProperties,
+            FileService fileService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.sftpProperties = sftpProperties;
-        fileService = new LocalFileImpl();
+        this.fileService = fileService;
     }
 
     public void processFileService(ScannerPub pub) {
@@ -192,7 +195,7 @@ public class TransformerService {
     public void processAuditSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(auditSchemaPath, fileService.get(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + fileName);
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-audit");
 
@@ -240,7 +243,9 @@ public class TransformerService {
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + fileName);
+            File f = new File(statusSchemaPath);
+            File f2 = new File(fileName);
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
@@ -317,23 +322,6 @@ public class TransformerService {
         }
     }
 
-    static byte[] readFile(File file) throws IOException {
-        // Open file
-        RandomAccessFile f = new RandomAccessFile(file, "r");
-        try {
-            // Get and check length
-            long longLength = f.length();
-            int length = (int) longLength;
-            if (length != longLength) throw new IOException("File size >= 2 GB");
-            // Read file and return data
-            byte[] data = new byte[length];
-            f.readFully(data);
-            return data;
-        } finally {
-            f.close();
-        }
-    }
-
     private void processFolder(String folderPath) {
         // Extract date from Processed folderName to pass service as 'processedDate'.
         Pattern p = Pattern.compile("\\bProcessed_\\w+[-][0-9][0-9][-][0-9][0-9]");
@@ -372,14 +360,8 @@ public class TransformerService {
 
     public void processDocumentsSvc(String folderName, String folderShortName, String processedDate)
             throws IOException {
-        String[] fileList;
-
-        // Creates a new File instance by converting the given pathname string
-        // into an abstract pathname
-        File f = new File(folderName);
-
         // Populates the array with names of files and directories
-        fileList = f.list();
+        List<String> fileList = fileService.listFiles(folderName);
         String fileName = "";
         boolean isValid = false;
         InputStream xmlFile = null;
@@ -399,7 +381,7 @@ public class TransformerService {
         if (!isValid) {
             xmlFile.close();
             throw new IOException(
-                    "XML file schema validation failed. fileName : " + folderName + fileName);
+                    "XML file schema validation failed. fileName: " + folderName + fileName);
         }
 
         byte[] document = IOUtils.toByteArray(xmlFile);
@@ -442,7 +424,10 @@ public class TransformerService {
             List<String> pdfs = extractPDFFileNames(folderName);
             UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(host + "doc/save");
             for (String pdf : pdfs) {
-                SavePDFDocumentRequest req = new SavePDFDocumentRequest(readFile(new File(pdf)));
+                InputStream pdfStream = fileService.get(pdf);
+                SavePDFDocumentRequest req =
+                        new SavePDFDocumentRequest(IOUtils.toByteArray(pdfStream));
+                pdfStream.close();
                 HttpEntity<SavePDFDocumentRequest> payload =
                         new HttpEntity<>(req, new HttpHeaders());
                 try {
@@ -636,16 +621,15 @@ public class TransformerService {
         }
     }
 
-    public static final List<String> extractPDFFileNames(String folderName) throws IOException {
+    public List<String> extractPDFFileNames(String folderName) throws IOException {
         /** Purpose of this service is to extract a list of file names from a given folder */
         List<String> pdfs = new ArrayList<>();
 
         try {
-            File file = new File(folderName);
-            File[] files = file.listFiles();
-            for (File f : files) {
-                if (FilenameUtils.getExtension(f.getName()).equalsIgnoreCase("pdf")) {
-                    pdfs.add(f.getCanonicalPath());
+            List<String> fileNames = fileService.listFiles(folderName);
+            for (String f : fileNames) {
+                if (f.substring(f.lastIndexOf('.')).equalsIgnoreCase(".pdf")) {
+                    pdfs.add(f);
                 }
             }
             return pdfs;
@@ -654,24 +638,23 @@ public class TransformerService {
         }
     }
 
-    public static final String extractXMLFileName(String[] fileList, String regex)
-            throws IOException {
+    public String extractXMLFileName(List<String> fileList, String regex) throws IOException {
         /**
          * Purpose of this service is to extract a file from a list of file names given a specific
          * regex.
          */
         String result = null;
-        if (fileList == null || fileList.length == 0 || regex == null) {
+        if (fileList == null || fileList.size() == 0 || regex == null) {
             throw new IOException(
                     "Unsatisfied parameter requirement(s) at CRDP.Source.ProcessIncomingFile.Java:extractXMLFileName");
         }
         try {
-            for (int i = 0; i < fileList.length; i++) {
-                if (Pattern.matches(regex, fileList[i])) {
+            for (int i = 0; i < fileList.size(); i++) {
+                if (Pattern.matches(regex, fileList.get(i))) {
                     if (result != null)
                         throw new IOException(
                                 "Multiple files found satisfying regex at CRDP.Source.ProcessIncomingFile.Java:extractXMLFileName. Should only be one.");
-                    result = fileList[i];
+                    result = fileList.get(i);
                 }
             }
             return result;
