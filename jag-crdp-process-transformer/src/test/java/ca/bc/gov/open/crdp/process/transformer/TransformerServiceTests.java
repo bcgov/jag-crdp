@@ -6,14 +6,14 @@ import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.crdp.process.transformer.services.TransformerService;
 import ca.bc.gov.open.sftp.starter.FileService;
-import ca.bc.gov.open.sftp.starter.LocalFileImpl;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.AdditionalMatchers;
@@ -28,8 +28,6 @@ import org.springframework.web.client.RestTemplate;
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class TransformerServiceTests {
 
-    private String inFileDir;
-
     @Mock private ObjectMapper objectMapper;
     @Mock private RestTemplate restTemplate;
     @Mock private FileService fileService;
@@ -37,29 +35,16 @@ public class TransformerServiceTests {
     @Mock private SftpProperties sftpProperties;
 
     @BeforeAll
-    public void setUp() throws IOException {
+    public void setUp() {
         MockitoAnnotations.openMocks(this);
-        fileService = Mockito.spy(new LocalFileImpl());
         controller =
-                Mockito.spy(new TransformerService(restTemplate, objectMapper, sftpProperties));
-
-        String appPath = new File("").getCanonicalPath();
-        inFileDir = appPath + "/src/test/resources/test/processingIncoming/";
-
-        File backupFolder = new File(appPath + "/src/test/resources/backup/");
-        File testFolder = new File(appPath + "/src/test/resources/test/");
-
-        try {
-            FileUtils.deleteDirectory(testFolder);
-            FileUtils.copyDirectory(backupFolder, testFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                Mockito.spy(
+                        new TransformerService(
+                                restTemplate, objectMapper, sftpProperties, fileService));
     }
 
     @Test
     public void processAuditSvcTest() throws IOException {
-        var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
 
@@ -76,15 +61,13 @@ public class TransformerServiceTests {
 
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
-        InputStream inputStream = IOUtils.toInputStream("test input stream", "UTF-8");
-        when(fileService.get(fileName)).thenReturn(inputStream);
-        controller.processAuditSvc(fileName);
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
+        controller.processAuditSvc("AAA");
     }
 
     @Test
-    public void processAuditSvcTestFail() {
-        var fileName = inFileDir + "ABCDO_Audit.000001.XML";
-
+    public void processAuditSvcTestFail() throws IOException {
         when(restTemplate.exchange(
                         Mockito.any(String.class),
                         Mockito.eq(HttpMethod.POST),
@@ -95,12 +78,13 @@ public class TransformerServiceTests {
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
-        Assertions.assertThrows(ORDSException.class, () -> controller.processAuditSvc(fileName));
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
+        Assertions.assertThrows(ORDSException.class, () -> controller.processAuditSvc("AAA"));
     }
 
     @Test
     public void processAuditSvcTestInvalidXml() {
-        var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
         ResponseEntity<ProcessAuditResponse> responseEntity =
@@ -116,12 +100,11 @@ public class TransformerServiceTests {
 
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
-        Assertions.assertThrows(IOException.class, () -> controller.processAuditSvc(fileName));
+        Assertions.assertThrows(IOException.class, () -> controller.processAuditSvc("AAA"));
     }
 
     @Test
     public void processStatusSvcTest() throws IOException {
-        var fileName = inFileDir + "ABCDO_Status.000001.XML";
         var processStatusResponse = new ProcessStatusResponse();
         processStatusResponse.setResultCd("0");
 
@@ -137,13 +120,13 @@ public class TransformerServiceTests {
                 .thenReturn(responseEntity);
 
         when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
-        controller.processStatusSvc(fileName);
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
+        controller.processStatusSvc("AAA");
     }
 
     @Test
-    public void processStatusSvcTestFail() {
-        var fileName = inFileDir + "ABCDO_Status.000001.XML";
-
+    public void processStatusSvcTestFail() throws IOException {
         when(restTemplate.exchange(
                         Mockito.any(String.class),
                         Mockito.eq(HttpMethod.POST),
@@ -153,12 +136,13 @@ public class TransformerServiceTests {
 
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
-        Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc(fileName));
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
+        Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc("AAA"));
     }
 
     @Test
     public void processStatusSvcTestInvalidXml() {
-        var fileName = inFileDir + "ABCDO_Status.000001.XML";
         var processStatusResponse = new ProcessStatusResponse();
         processStatusResponse.setResultCd("0");
         ResponseEntity<ProcessStatusResponse> responseEntity =
@@ -174,15 +158,11 @@ public class TransformerServiceTests {
 
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(false);
-        Assertions.assertThrows(IOException.class, () -> controller.processStatusSvc(fileName));
+        Assertions.assertThrows(IOException.class, () -> controller.processStatusSvc("AAA"));
     }
 
     @Test
     public void processDocumentsSvcTest() throws IOException {
-        var folderName = inFileDir + "Processed_2020-03-24/CCs/";
-        var folderShortName = "CCs";
-        var processedDate = "2020-03-24";
-
         //     Set up to mock ords response
         Map<String, String> m = new HashMap<>();
         ResponseEntity<Map<String, String>> responseEntity = new ResponseEntity<>(m, HttpStatus.OK);
@@ -225,15 +205,24 @@ public class TransformerServiceTests {
         // mock the file is a valid xml
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
 
-        controller.processDocumentsSvc(folderName, folderShortName, processedDate);
+        List<String> stringList = new ArrayList<>();
+        stringList.add("A.PDF");
+        stringList.add("B.XML");
+
+        List<Object> objects = mock(List.class);
+        when(objects.size()).thenReturn(5);
+
+        when(fileService.listFiles(Mockito.any(String.class))).thenReturn(stringList);
+        when(controller.extractPDFFileNames(Mockito.anyString())).thenReturn(stringList);
+
+        controller.processDocumentsSvc("AAA", "CCs", "CCC");
     }
 
     @Test
     public void processReportsSvcTest() throws IOException {
-        var folderName = inFileDir + "Processed_2020-03-24/R-Lists/";
-        var processedDate = "2020-03-24";
-
         //     Set up to mock ords response
         var processReportResponse = new ProcessReportResponse();
         ResponseEntity<ProcessReportResponse> responseEntity =
@@ -247,15 +236,13 @@ public class TransformerServiceTests {
                         Mockito.<HttpEntity<String>>any(),
                         Mockito.<Class<ProcessReportResponse>>any()))
                 .thenReturn(responseEntity);
-
-        controller.processReportsSvc(folderName, processedDate);
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
+        controller.processReportsSvc("AAA", "BBB");
     }
 
     @Test
     public void processReportsSvcTestFail() throws IOException {
-        var folderName = inFileDir + "Processed_2020-03-24/R-Lists/";
-        var processedDate = "2020-03-24";
-
         // Set up to mock ords response
         when(restTemplate.exchange(
                         Mockito.any(String.class),
@@ -264,8 +251,10 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessReportRequest>>any()))
                 .thenThrow(ORDSException.class);
 
+        InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
+        when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
         Assertions.assertThrows(
-                ORDSException.class, () -> controller.processReportsSvc(folderName, processedDate));
+                ORDSException.class, () -> controller.processReportsSvc("AAA", "BBB"));
     }
 
     @Test
