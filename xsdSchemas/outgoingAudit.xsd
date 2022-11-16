@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xs:schema id="CRDPFORMS" xmlns="" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="CRDPFORMS">
+        <xs:complexType>
+            <xs:choice minOccurs="1" maxOccurs="unbounded">
+                <xs:element name="CRDPAUDIT01">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Record_Type" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="01"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="File_Name" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:pattern value="[A-Za-z0-9]{4}O_AUDIT\.[0-9]{6}\.XML"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="File_Date" type="xs:date" minOccurs="1" />
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="CRDPAUDITRESULT">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Request_Type" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="R"/>
+                                        <xs:enumeration value="D"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Requested_Action" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="10"/>
+                                        <xs:enumeration value="11"/>
+                                        <xs:enumeration value="12"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Court_Number" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="1000"/>
+                                        <xs:maxInclusive value="9999"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Divorce_Registry_Number" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="0"/>
+                                        <xs:maxInclusive value="999999"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Source_Case_Number" minOccurs="0">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:minLength value="1"/>
+                                        <xs:maxLength value="50"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Result_Code" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="12"/>
+                                        <xs:enumeration value="13"/>
+                                        <xs:enumeration value="14"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Errors" minOccurs="0">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element name="Error" minOccurs="0" maxOccurs="unbounded">
+                                            <xs:simpleType>
+                                                <xs:restriction base="xs:string">
+                                                </xs:restriction>
+                                            </xs:simpleType>
+                                        </xs:element>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="CRDPAUDIT99">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Record_Type" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:string">
+                                        <xs:enumeration value="99"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Success_RecordCount" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="0"/>
+                                        <xs:maxInclusive value="999999"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Failed_RecordCount" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="0"/>
+                                        <xs:maxInclusive value="999999"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                            <xs:element name="Warning_RecordCount" minOccurs="1">
+                                <xs:simpleType>
+                                    <xs:restriction base="xs:integer">
+                                        <xs:minInclusive value="0"/>
+                                        <xs:maxInclusive value="999999"/>
+                                    </xs:restriction>
+                                </xs:simpleType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>
