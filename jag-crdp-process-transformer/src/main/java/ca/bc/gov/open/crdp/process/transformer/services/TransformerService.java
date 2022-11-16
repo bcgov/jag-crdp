@@ -241,10 +241,15 @@ public class TransformerService {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
             File f = new File(statusSchemaPath);
+            File f2 = new File(fileName);
             throw new IOException(
                     "XML file schema validation failed. fileName: "
                             + fileName
-                            + "statusSchemaPath: "
+                            + " file exist: "
+                            + f2.exists()
+                            + " statusSchemaPath exist: "
+                            + f.exists()
+                            + " path: "
                             + f.getCanonicalPath());
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
