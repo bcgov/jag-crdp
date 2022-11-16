@@ -245,15 +245,7 @@ public class TransformerService {
         if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
             File f = new File(statusSchemaPath);
             File f2 = new File(fileName);
-            throw new IOException(
-                    "XML file schema validation failed. fileName: "
-                            + fileName
-                            + " file exist: "
-                            + f2.exists()
-                            + " statusSchemaPath exist: "
-                            + f.exists()
-                            + " path: "
-                            + f.getCanonicalPath());
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
