@@ -6,6 +6,7 @@ import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.crdp.process.transformer.services.TransformerService;
 import ca.bc.gov.open.sftp.starter.FileService;
+import ca.bc.gov.open.sftp.starter.LocalFileImpl;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
@@ -38,7 +39,7 @@ public class TransformerServiceTests {
     @BeforeAll
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
-
+        fileService = Mockito.spy(new LocalFileImpl());
         controller =
                 Mockito.spy(new TransformerService(restTemplate, objectMapper, sftpProperties));
 
