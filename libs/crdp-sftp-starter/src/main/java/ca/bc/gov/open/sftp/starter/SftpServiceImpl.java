@@ -92,7 +92,8 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        inputStream.set(channelSftp.get(fileName));
+                        channelSftp.get(fileName);
+                        //inputStream.set(channelSftp.get(fileName));
                         logger.debug("Successfully get file [{}]", fileName);
                     } catch (Exception e) {
                         logger.error("Failed to get " + fileName + ": " + e.getMessage());
