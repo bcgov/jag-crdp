@@ -95,7 +95,7 @@ public class TransformerServiceTests {
     }
 
     @Test
-    public void processAuditSvcTestInvalidXml() {
+    public void processAuditSvcTestInvalidXml() throws FileNotFoundException {
         var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
