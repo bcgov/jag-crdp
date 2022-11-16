@@ -72,7 +72,8 @@ public class ScannerService {
             RestTemplate restTemplate,
             ObjectMapper objectMapper,
             RabbitTemplate rabbitTemplate,
-            SftpProperties sftpProperties) {
+            SftpProperties sftpProperties,
+            FileService fileService) {
         this.scannerQueue = scannerQueue;
         this.amqpAdmin = amqpAdmin;
         this.queueConfig = queueConfig;
@@ -80,6 +81,7 @@ public class ScannerService {
         this.objectMapper = objectMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.sftpProperties = sftpProperties;
+        this.fileService = fileService;
     }
 
     /** The primary method for the Java service to scan CRDP directory */
