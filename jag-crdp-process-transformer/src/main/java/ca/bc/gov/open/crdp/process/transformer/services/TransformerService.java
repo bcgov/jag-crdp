@@ -85,7 +85,6 @@ public class TransformerService {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.sftpProperties = sftpProperties;
-        fileService = new LocalFileImpl();
     }
 
     public void processFileService(ScannerPub pub) {
