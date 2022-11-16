@@ -644,7 +644,7 @@ public class TransformerService {
          * regex.
          */
         String result = null;
-        if (fileList == null || regex == null) {
+        if (fileList == null || fileList.size() == 0 || regex == null) {
             throw new IOException(
                     "Unsatisfied parameter requirement(s) at CRDP.Source.ProcessIncomingFile.Java:extractXMLFileName");
         }
