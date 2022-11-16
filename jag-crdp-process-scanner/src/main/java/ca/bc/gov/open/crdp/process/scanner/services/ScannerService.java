@@ -172,6 +172,9 @@ public class ScannerService {
 
             if (getFileName(folder).equals("Errors") || getFileName(folder).equals("Completed")) {
                 for (var f : fileService.listFiles(folder)) {
+                    if (getFileName(f).equals(".") || getFileName(f).equals("..")) {
+                        continue;
+                    }
                     if (new Date().getTime() - fileService.lastModify(f)
                             > recordTTLHour * 60 * 60 * 1000) {
                         fileService.removeFolder(f);
