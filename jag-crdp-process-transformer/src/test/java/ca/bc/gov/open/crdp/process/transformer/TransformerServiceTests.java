@@ -6,7 +6,6 @@ import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.crdp.process.transformer.services.TransformerService;
 import ca.bc.gov.open.sftp.starter.FileService;
-import ca.bc.gov.open.sftp.starter.LocalFileImpl;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
@@ -14,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.*;
 import org.mockito.AdditionalMatchers;
 import org.mockito.Mock;
@@ -31,6 +31,7 @@ public class TransformerServiceTests {
 
     @Mock private ObjectMapper objectMapper;
     @Mock private RestTemplate restTemplate;
+    @Mock private FileService fileService;
     @Mock private TransformerService controller;
     @Mock private SftpProperties sftpProperties;
 
@@ -74,6 +75,8 @@ public class TransformerServiceTests {
 
         when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
                 .thenReturn(true);
+        InputStream inputStream = IOUtils.toInputStream("test input stream", "UTF-8");
+        when(fileService.get(fileName)).thenReturn(inputStream);
         controller.processAuditSvc(fileName);
     }
 
@@ -95,7 +98,7 @@ public class TransformerServiceTests {
     }
 
     @Test
-    public void processAuditSvcTestInvalidXml() throws FileNotFoundException {
+    public void processAuditSvcTestInvalidXml() {
         var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
@@ -132,8 +135,7 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.anyString(), Mockito.any()))
-                .thenReturn(true);
+        when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
         controller.processStatusSvc(fileName);
     }
 
@@ -149,8 +151,7 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.anyString(), Mockito.any()))
-                .thenReturn(true);
+        when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
         Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc(fileName));
     }
 
