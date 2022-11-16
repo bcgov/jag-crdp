@@ -78,7 +78,7 @@ public class TransformerServiceTests {
     }
 
     @Test
-    public void processAuditSvcTestFail() throws IOException {
+    public void processAuditSvcTestFail() {
         var fileName = inFileDir + "ABCDO_Audit.000001.XML";
 
         when(restTemplate.exchange(
@@ -95,7 +95,7 @@ public class TransformerServiceTests {
     }
 
     @Test
-    public void processAuditSvcTestInvalidXml() throws FileNotFoundException {
+    public void processAuditSvcTestInvalidXml() {
         var fileName = inFileDir + "ABCDO_Audit.000001.XML";
         var processAuditResponse = new ProcessAuditResponse();
         processAuditResponse.setResultCd("0");
@@ -132,13 +132,13 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
+        when(controller.validateXml(Mockito.anyString(), Mockito.any()))
                 .thenReturn(true);
         controller.processStatusSvc(fileName);
     }
 
     @Test
-    public void processStatusSvcTestFail() throws FileNotFoundException {
+    public void processStatusSvcTestFail() {
         var fileName = inFileDir + "ABCDO_Status.000001.XML";
 
         when(restTemplate.exchange(
@@ -149,13 +149,13 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.anyString(), Mockito.any(InputStream.class)))
+        when(controller.validateXml(Mockito.anyString(), Mockito.any()))
                 .thenReturn(true);
         Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc(fileName));
     }
 
     @Test
-    public void processStatusSvcTestInvalidXml() throws FileNotFoundException {
+    public void processStatusSvcTestInvalidXml() {
         var fileName = inFileDir + "ABCDO_Status.000001.XML";
         var processStatusResponse = new ProcessStatusResponse();
         processStatusResponse.setResultCd("0");
