@@ -31,7 +31,6 @@ public class TransformerServiceTests {
 
     @Mock private ObjectMapper objectMapper;
     @Mock private RestTemplate restTemplate;
-    @Mock private FileService fileService;
     @Mock private TransformerService controller;
     @Mock private SftpProperties sftpProperties;
 
@@ -39,7 +38,6 @@ public class TransformerServiceTests {
     public void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
 
-        fileService = Mockito.spy(new LocalFileImpl());
         controller =
                 Mockito.spy(new TransformerService(restTemplate, objectMapper, sftpProperties));
 
