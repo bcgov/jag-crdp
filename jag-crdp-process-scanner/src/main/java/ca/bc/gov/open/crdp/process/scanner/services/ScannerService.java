@@ -186,8 +186,12 @@ public class ScannerService {
                 continue;
             }
             log.info("Deleting... " + folder);
-            fileService.removeFolder(folder);
-            log.info("Delete " + folder + " completed");
+            try {
+                fileService.removeFolder(folder);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                log.info("Failed to delete: " + folder);
+            }
         }
     }
 

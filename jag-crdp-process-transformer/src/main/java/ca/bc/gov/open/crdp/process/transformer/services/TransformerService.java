@@ -200,9 +200,9 @@ public class TransformerService {
     public void processAuditSvc(String fileName) throws IOException {
         log.info("processAuditSvc - 1");
         log.info("shortFileName: " + FilenameUtils.getName(fileName));
-        String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         log.info("auditSchemaPath exist: " + fileService.exists(auditSchemaPath));
         log.info("audit xml exist: " + fileService.exists(fileName));
+        String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(auditSchemaPath, fileService.get(fileName))) {
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
