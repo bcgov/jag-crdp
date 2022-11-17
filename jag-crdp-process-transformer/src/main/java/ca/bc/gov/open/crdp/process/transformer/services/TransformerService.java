@@ -620,13 +620,15 @@ public class TransformerService {
     public boolean validateXml(String xsdPath, String xmlFile) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
-        InputStream xmlFileForValidation = fileService.get(xmlFile);
         try {
-            log.info("validateXml - 1");
+            InputStream xmlFileForValidation = fileService.get(xmlFile);
+            log.info("xmlFileForValidation.readAllBytes: " + xmlFileForValidation.readAllBytes());
             Schema schema = factory.newSchema(schemaFile);
-            log.info("validateXml - 2");
-            schema.newValidator().validate(new StreamSource(xmlFileForValidation));
-            xmlFileForValidation.close();
+            Source streamSource =
+                    new StreamSource(String.valueOf(xmlFileForValidation.readAllBytes()));
+            log.info("streamSource: " + streamSource);
+            schema.newValidator().validate(streamSource);
+            // xmlFileForValidation.close();
             return true;
         } catch (Exception e) {
             log.error("validateXml error: " + e.getMessage());
