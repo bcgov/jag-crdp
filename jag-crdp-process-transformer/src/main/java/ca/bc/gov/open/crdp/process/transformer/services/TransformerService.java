@@ -175,9 +175,10 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-        log.info("processFile: 1");
+        log.info("processFile: 1" + getFileName(filePath));
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
+                log.info("processFile: 2");
                 processAuditSvc(filePath);
 
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
@@ -195,6 +196,8 @@ public class TransformerService {
     }
 
     public void processAuditSvc(String fileName) throws IOException {
+        log.info("processAuditSvc - 1");
+        log.info("shortFileName: " + FilenameUtils.getName(fileName));
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         log.info("auditSchemaPath exist: " + fileService.exists(auditSchemaPath));
         log.info("audit xml exist: " + fileService.exists(fileName));
