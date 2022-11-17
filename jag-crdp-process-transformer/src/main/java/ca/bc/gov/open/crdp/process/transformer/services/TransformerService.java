@@ -140,6 +140,7 @@ public class TransformerService {
 
                 // create errors folder with last scanning timestamp
                 if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
+                    log.info("making " + errorsDir + "/" + timestamp);
                     fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
