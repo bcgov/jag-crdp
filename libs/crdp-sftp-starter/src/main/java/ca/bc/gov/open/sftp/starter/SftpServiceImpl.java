@@ -314,8 +314,9 @@ public class SftpServiceImpl implements FileService {
                                             + getFilePath(filePath)
                                             + ": "
                                             + e.getMessage());
+
+                            throw e;
                         }
-                        throw e;
                     }
                     logger.debug(getFilePath(filePath) + " is found");
                 });
