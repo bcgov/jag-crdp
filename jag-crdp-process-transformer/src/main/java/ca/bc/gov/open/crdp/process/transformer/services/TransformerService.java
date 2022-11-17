@@ -621,7 +621,9 @@ public class TransformerService {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
         try {
+            log.info("validateXml - 1");
             InputStream xmlFileForValidation = fileService.get(xmlFile);
+            log.info("validateXml - 2");
             log.info("xmlFileForValidation.readAllBytes: " + xmlFileForValidation.readAllBytes());
             Schema schema = factory.newSchema(schemaFile);
             Source streamSource =
