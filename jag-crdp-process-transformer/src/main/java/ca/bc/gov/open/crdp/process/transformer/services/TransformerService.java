@@ -625,11 +625,15 @@ public class TransformerService {
             InputStream xmlFileForValidation = fileService.get(xmlFile);
             log.info("validateXml - 2");
             log.info("xmlFileForValidation.readAllBytes: " + xmlFileForValidation.readAllBytes());
+            log.info("validateXml - 3");
             Schema schema = factory.newSchema(schemaFile);
+            log.info("validateXml - 4");
             Source streamSource =
                     new StreamSource(String.valueOf(xmlFileForValidation.readAllBytes()));
+            log.info("validateXml - 5");
             log.info("streamSource: " + streamSource);
             schema.newValidator().validate(streamSource);
+            log.info("validateXml - 6");
             // xmlFileForValidation.close();
             return true;
         } catch (Exception e) {
