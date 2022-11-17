@@ -121,6 +121,11 @@ public class SftpServiceImplTest {
     }
 
     @Test
+    public void forGetInputstreamGetFile() {
+        Assertions.assertDoesNotThrow(() -> sut.get(CASE_1));
+    }
+
+    @Test
     public void forPutWithInputstreamShouldPutFile() {
         Assertions.assertDoesNotThrow(
                 () -> sut.put(new ByteArrayInputStream(FAKE_INPUT_STREAM.getBytes()), CASE_1));
