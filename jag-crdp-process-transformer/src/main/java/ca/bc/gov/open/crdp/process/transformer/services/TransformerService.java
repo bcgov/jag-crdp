@@ -175,7 +175,8 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-        log.info("processFile: 1" + getFileName(filePath));
+        log.info("filePath:" + filePath);
+        log.info("processFile: 1 getFileName:" + getFileName(filePath));
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 log.info("processFile: 2");

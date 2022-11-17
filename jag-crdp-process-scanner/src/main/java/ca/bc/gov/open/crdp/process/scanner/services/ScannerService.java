@@ -166,6 +166,7 @@ public class ScannerService {
     private void cleanUp(String headFolderPath) {
         // delete processed folders (delivered from Ottawa).
         for (var folder : fileService.listFiles(headFolderPath)) {
+            log.info("Checking... " + folder);
             if (!fileService.isDirectory(folder)
                     || getFileName(folder).equals("Processing")
                     || (getFileName(folder).equals(".") || getFileName(folder).equals(".."))) {
@@ -184,7 +185,9 @@ public class ScannerService {
                 }
                 continue;
             }
+            log.info("Deleting... " + folder);
             fileService.removeFolder(folder);
+            log.info("Delete " + folder + " completed");
         }
     }
 
