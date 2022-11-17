@@ -106,6 +106,7 @@ public class TransformerService {
         this.timestamp = pub.getDateTime();
 
         if (fileService.exists(processingDir) && fileService.isDirectory(processingDir)) {
+            log.info("processFileService: 1");
             // create Completed folder
             if (!fileService.exists(completedDir)) {
                 fileService.makeFolder(completedDir, PERMISSIONS_DECIMAL);
@@ -116,6 +117,7 @@ public class TransformerService {
                 fileService.makeFolder(errorsDir, PERMISSIONS_DECIMAL);
             }
 
+            log.info("processFileService: 2");
             if (!fileService.isDirectory(pub.getFilePath())) {
                 // process files
                 processFile(pub.getFilePath());
@@ -173,7 +175,7 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-
+        log.info("processFile: 1");
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
