@@ -203,12 +203,9 @@ public class TransformerService {
         log.info("auditSchemaPath exist: " + schema.exists());
         log.info("audit xml exist: " + fileService.exists(fileName));
 
-        InputStream xmlFileForValidation = fileService.get(fileName);
-        if (!validateXml(auditSchemaPath, xmlFileForValidation)) {
-            xmlFileForValidation.close();
+        if (!validateXml(auditSchemaPath, fileName)) {
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
-        xmlFileForValidation.close();
 
         log.info("validation completed");
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-audit");
@@ -256,7 +253,7 @@ public class TransformerService {
 
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
-        if (!validateXml(statusSchemaPath, fileService.get(fileName))) {
+        if (!validateXml(statusSchemaPath, fileName)) {
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
@@ -380,11 +377,11 @@ public class TransformerService {
         if (folderShortName.equals("CCs")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_CCs.XML");
             xmlFile = fileService.get(folderName + "/" + fileName);
-            isValid = validateXml(ccSchemaPath, fileService.get(folderName + "/" + fileName));
+            isValid = validateXml(ccSchemaPath, folderName + "/" + fileName);
         } else if (folderShortName.equals("Letters")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_Letters.XML");
             xmlFile = fileService.get(folderName + "/" + fileName);
-            isValid = validateXml(lettersSchemaPath, fileService.get(folderName + "/" + fileName));
+            isValid = validateXml(lettersSchemaPath, folderName + "/" + fileName);
         } else {
             xmlFile.close();
             throw new IOException("Unexpected folder short name: " + folderShortName);
@@ -620,14 +617,16 @@ public class TransformerService {
         }
     }
 
-    public boolean validateXml(String xsdPath, InputStream xmlFile) {
+    public boolean validateXml(String xsdPath, String xmlFile) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
+        InputStream xmlFileForValidation = fileService.get(xmlFile);
         try {
             log.info("validateXml - 1");
             Schema schema = factory.newSchema(schemaFile);
             log.info("validateXml - 2");
-            schema.newValidator().validate(new StreamSource(xmlFile));
+            schema.newValidator().validate(new StreamSource(xmlFileForValidation));
+            xmlFileForValidation.close();
             return true;
         } catch (Exception e) {
             log.error("validateXml error: " + e.getMessage());

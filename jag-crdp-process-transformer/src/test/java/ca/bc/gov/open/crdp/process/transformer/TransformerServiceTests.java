@@ -59,8 +59,9 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
-                .thenReturn(true);
+        doReturn(true)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
         when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
         controller.processAuditSvc("AAA");
@@ -76,8 +77,9 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
-                .thenReturn(true);
+        doReturn(true)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
         when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
         Assertions.assertThrows(ORDSException.class, () -> controller.processAuditSvc("AAA"));
@@ -98,8 +100,9 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessAuditResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
-                .thenReturn(false);
+        doReturn(false)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         Assertions.assertThrows(IOException.class, () -> controller.processAuditSvc("AAA"));
     }
 
@@ -119,7 +122,9 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
+        doReturn(true)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
         when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
         controller.processStatusSvc("AAA");
@@ -135,7 +140,9 @@ public class TransformerServiceTests {
                 .thenThrow(ORDSException.class);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.anyString(), Mockito.any())).thenReturn(true);
+        doReturn(true)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
         when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
         Assertions.assertThrows(ORDSException.class, () -> controller.processStatusSvc("AAA"));
@@ -156,8 +163,9 @@ public class TransformerServiceTests {
                         Mockito.<Class<ProcessStatusResponse>>any()))
                 .thenReturn(responseEntity);
 
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
-                .thenReturn(false);
+        doReturn(false)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         Assertions.assertThrows(IOException.class, () -> controller.processStatusSvc("AAA"));
     }
 
@@ -203,8 +211,9 @@ public class TransformerServiceTests {
                 .thenReturn(responseEntity2);
 
         // mock the file is a valid xml
-        when(controller.validateXml(Mockito.any(String.class), Mockito.any(InputStream.class)))
-                .thenReturn(true);
+        doReturn(true)
+                .when(controller)
+                .validateXml(Mockito.any(String.class), Mockito.any(String.class));
         InputStream stubInputStream = IOUtils.toInputStream("test data stream", "UTF-8");
         when(fileService.get(Mockito.any(String.class))).thenReturn(stubInputStream);
 
