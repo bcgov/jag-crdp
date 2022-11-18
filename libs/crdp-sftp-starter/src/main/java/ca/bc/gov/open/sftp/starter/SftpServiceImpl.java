@@ -45,24 +45,18 @@ public class SftpServiceImpl implements FileService {
         ByteArrayInputStream result = null;
         byte[] buff = new byte[BUFFER_SIZE];
 
-        Session session = null;
-
         try (ByteArrayOutputStream bao = new ByteArrayOutputStream()) {
 
             executeSftpFunction(
                     channelSftp -> {
                         try {
-
                             int bytesRead;
-
                             logger.debug("Attempting to get remote file [{}]", sftpRemoteFilename);
                             InputStream inputStream = channelSftp.get(sftpRemoteFilename);
                             logger.debug("Successfully get remote file [{}]", sftpRemoteFilename);
-
                             while ((bytesRead = inputStream.read(buff)) != -1) {
                                 bao.write(buff, 0, bytesRead);
                             }
-
                         } catch (IOException e) {
                             throw new StarterSftpException(e.getMessage(), e.getCause());
                         }

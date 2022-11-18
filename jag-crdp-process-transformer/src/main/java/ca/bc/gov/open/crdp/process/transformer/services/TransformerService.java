@@ -622,21 +622,17 @@ public class TransformerService {
         Source schemaFile = new StreamSource(xsdPath);
         try {
             log.info("validateXml - 1");
-            InputStream xmlFileForValidation = fileService.get(xmlFile);
+            ByteArrayInputStream xmlFileForValidation = fileService.getContent(xmlFile);
             log.info("validateXml - 2");
-            byte[] content = xmlFileForValidation.readAllBytes();
+            log.info("xmlFileForValidation.readAllBytes: " + xmlFileForValidation);
             log.info("validateXml - 3");
-            InputStream in = new ByteArrayInputStream(content);
-            log.info("xmlFileForValidation.readAllBytes: " + in);
-            log.info("validateXml - 4");
             Schema schema = factory.newSchema(schemaFile);
+            log.info("validateXml - 4");
+            Source streamSource = new StreamSource(xmlFileForValidation);
             log.info("validateXml - 5");
-            Source streamSource = new StreamSource(in);
-            log.info("validateXml - 6");
             log.info("streamSource: " + streamSource);
             schema.newValidator().validate(streamSource);
-            log.info("validateXml - 7");
-            // xmlFileForValidation.close();
+            log.info("validateXml - 6");
             return true;
         } catch (Exception e) {
             log.error("validateXml error: " + e.getMessage());
