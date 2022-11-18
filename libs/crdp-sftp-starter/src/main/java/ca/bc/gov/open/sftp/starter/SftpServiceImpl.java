@@ -4,6 +4,7 @@ import com.jcraft.jsch.*;
 import java.io.*;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -194,7 +195,8 @@ public class SftpServiceImpl implements FileService {
     }
 
     /**
-     * Remove the directory under the folder path
+     * Remove the directory under the folder path Note that SFTP rmdir does NOT support deleting
+     * non-empty directory, therefore a recursive deletion is implemented.
      *
      * @param folderPath
      */
@@ -204,7 +206,26 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        channelSftp.rmdir(remoteFilePath);
+                        Collection<ChannelSftp.LsEntry> fileAndFolderList =
+                                channelSftp.ls(folderPath);
+                        // Iterate objects in the list to get file/folder names.
+                        for (ChannelSftp.LsEntry item : fileAndFolderList) {
+                            if (!item.getAttrs().isDir()) {
+                                channelSftp.rm(
+                                        folderPath + "/" + item.getFilename()); // Remove file.
+                            } else if (!(".".equals(item.getFilename())
+                                    || "..".equals(item.getFilename()))) { // If it is a
+                                // sub-directory
+                                try {
+                                    // removing sub-directory
+                                    channelSftp.rmdir(folderPath + "/" + item.getFilename());
+                                } catch (Exception e) { // If subdir is not empty and error occurs.
+                                    // Do lsFolderRemove on this subdir to enter it and clear its
+                                    // contents.
+                                    removeFolder(folderPath + "/" + item.getFilename());
+                                }
+                            }
+                        }
                         logger.debug("Successfully removed folder [{}]", remoteFilePath);
                     } catch (Exception e) {
                         logger.error("Failed to remove " + remoteFilePath + ": " + e.getMessage());
