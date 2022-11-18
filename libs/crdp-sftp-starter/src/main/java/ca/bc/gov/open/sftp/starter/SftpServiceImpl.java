@@ -208,25 +208,23 @@ public class SftpServiceImpl implements FileService {
                     try {
                         Collection<ChannelSftp.LsEntry> fileAndFolderList =
                                 channelSftp.ls(folderPath);
-                        // Iterate objects in the list to get file/folder names.
+                        // Iterate objects in the list to get file/folder names
                         for (ChannelSftp.LsEntry item : fileAndFolderList) {
                             if (!item.getAttrs().isDir()) {
-                                channelSftp.rm(
-                                        folderPath + "/" + item.getFilename()); // Remove file.
+                                // Remove file
+                                channelSftp.rm(folderPath + "/" + item.getFilename());
                             } else if (!(".".equals(item.getFilename())
-                                    || "..".equals(item.getFilename()))) { // If it is a
-                                // sub-directory
+                                    || "..".equals(item.getFilename()))) {
                                 try {
-                                    // removing sub-directory
+                                    // Remove sub-directory
                                     channelSftp.rmdir(folderPath + "/" + item.getFilename());
-                                } catch (Exception e) { // If subdir is not empty and error occurs
-                                    // Do lsFolderRemove on this subdir to enter it and clear its
-                                    // contents
+                                } catch (Exception e) {
+                                    // Do recursive deletion on sub-directory
                                     removeFolder(folderPath + "/" + item.getFilename());
                                 }
                             }
                         }
-                        // removing sub-directory
+                        // Remove current directory
                         channelSftp.rmdir(folderPath);
                         logger.debug("Successfully removed folder [{}]", remoteFilePath);
                     } catch (Exception e) {
