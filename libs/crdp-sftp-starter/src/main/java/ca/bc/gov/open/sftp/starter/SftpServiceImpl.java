@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -73,27 +72,6 @@ public class SftpServiceImpl implements FileService {
         }
 
         return result;
-    }
-
-    /**
-     * Get the file from the destination
-     *
-     * @param fileName
-     */
-    @Override
-    public InputStream get(String fileName) {
-        AtomicReference<InputStream> inputStream = new AtomicReference<>();
-        executeSftpFunction(
-                channelSftp -> {
-                    try {
-                        inputStream.set(channelSftp.get(fileName));
-                        logger.debug("Successfully get file [{}]", fileName);
-                    } catch (Exception e) {
-                        logger.error("Failed to get " + fileName + ": " + e.getMessage());
-                        throw e;
-                    }
-                });
-        return inputStream.get();
     }
 
     /**

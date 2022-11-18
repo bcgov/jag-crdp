@@ -18,35 +18,16 @@ public class LocalFileImpl implements FileService {
     /**
      * Get file content in byte array
      *
-     * @param filename
-     */
-    @Override
-    public ByteArrayInputStream getContent(String filename) {
-        File file = new File(filename);
-        ByteArrayInputStream result = null;
-        try {
-            result = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-        return result;
-    }
-
-    /**
-     * Get the file from the destination
-     *
      * @param fileName
      */
     @Override
-    public InputStream get(String fileName) {
-        InputStream targetStream = null;
+    public ByteArrayInputStream getContent(String fileName) {
+        ByteArrayInputStream targetStream = null;
         File file = new File(fileName);
         try {
-            targetStream = new FileInputStream(file);
+            targetStream = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
         } catch (Exception e) {
             logger.error("Failed to get " + fileName + ": " + e.getMessage());
-        } finally {
-            file.delete();
         }
         return targetStream;
     }
