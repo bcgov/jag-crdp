@@ -213,12 +213,24 @@ public class SftpServiceImpl implements FileService {
                             if (!item.getAttrs().isDir()) {
                                 channelSftp.rm(
                                         folderPath + "/" + item.getFilename()); // Remove file.
+                                logger.info(
+                                        "##### "
+                                                + folderPath
+                                                + "/"
+                                                + item.getFilename()
+                                                + "is deleted fr!");
                             } else if (!(".".equals(item.getFilename())
                                     || "..".equals(item.getFilename()))) { // If it is a
                                 // sub-directory
                                 try {
                                     // removing sub-directory
                                     channelSftp.rmdir(folderPath + "/" + item.getFilename());
+                                    logger.info(
+                                            "##### "
+                                                    + folderPath
+                                                    + "/"
+                                                    + item.getFilename()
+                                                    + "is deleted fr!");
                                 } catch (Exception e) { // If subdir is not empty and error occurs.
                                     // Do lsFolderRemove on this subdir to enter it and clear its
                                     // contents.
