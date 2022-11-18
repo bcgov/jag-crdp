@@ -212,6 +212,7 @@ public class SftpServiceImpl implements FileService {
                         try {
                             logger.info("Change Permission to 511d(777)");
                             channelSftp.chmod(511, remoteFilePath);
+                            channelSftp.rm(remoteFilePath);
                         } catch (Exception e2) {
                             logger.error(
                                     "Failed to remove (after changing permission) "
