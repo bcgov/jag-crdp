@@ -383,12 +383,10 @@ public class TransformerService {
             xmlFile = fileService.getContent(fileName);
             isValid = validateXml(lettersSchemaPath, fileName);
         } else {
-            xmlFile.close();
             throw new IOException("Unexpected folder short name: " + folderShortName);
         }
 
         if (!isValid) {
-            xmlFile.close();
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
 

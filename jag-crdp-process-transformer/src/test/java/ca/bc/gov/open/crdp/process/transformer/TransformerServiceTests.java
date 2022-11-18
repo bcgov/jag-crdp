@@ -231,6 +231,7 @@ public class TransformerServiceTests {
 
         when(fileService.listFiles(Mockito.any(String.class))).thenReturn(stringList);
         when(controller.extractPDFFileNames(Mockito.anyString())).thenReturn(stringList);
+        doReturn("AAA").when(controller).extractXMLFileName(Mockito.anyList(), Mockito.anyString());
 
         controller.processDocumentsSvc("AAA", "CCs", "CCC");
     }
