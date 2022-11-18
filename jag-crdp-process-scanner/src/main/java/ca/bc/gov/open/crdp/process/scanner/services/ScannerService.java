@@ -106,7 +106,10 @@ public class ScannerService {
                         + " isDirectory:"
                         + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
-            // create Processing folder
+            // Clean up IN directory
+            cleanUp(inFileDir);
+
+            // Create Processing folder
             log.info(
                     "ProcessingDir:"
                             + processingDir
@@ -134,14 +137,14 @@ public class ScannerService {
                 return;
             }
 
-            // create Processing/Datetime folder
+            // Create Processing/Datetime folder
             // 493 -> 111 101 101 -> 755
             fileService.makeFolder(
                     processingDir + "/" + customFormatter.format(scanDateTime),
                     PERMISSIONS_DECIMAL);
 
             try {
-                // move files into processing folder
+                // Move files into processing folder
                 for (Entry<String, String> m : processingFilesToMove.entrySet()) {
                     log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -153,7 +156,6 @@ public class ScannerService {
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
-                cleanUp(inFileDir);
                 log.info("Scan Complete");
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -180,18 +182,15 @@ public class ScannerService {
                     }
                     if (new Date().getTime() - fileService.lastModify(f)
                             > recordTTLHour * 60 * 60 * 1000) {
+                        log.info("Old file detected: " + fileService.lastModify(f));
+                        log.info("Deleting... " + f);
                         fileService.removeFolder(f);
                     }
                 }
                 continue;
             }
             log.info("Deleting... " + folder);
-            try {
-                fileService.removeFolder(folder);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                log.info("Failed to delete: " + folder);
-            }
+            fileService.removeFolder(folder);
         }
     }
 

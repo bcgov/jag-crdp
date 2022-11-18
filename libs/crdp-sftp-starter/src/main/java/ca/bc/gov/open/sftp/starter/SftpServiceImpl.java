@@ -206,9 +206,20 @@ public class SftpServiceImpl implements FileService {
                     try {
                         channelSftp.rm(remoteFilePath);
                         logger.debug("Successfully removed folder [{}]", remoteFilePath);
-                    } catch (Exception e) {
-                        logger.error("Failed to remove " + remoteFilePath + ": " + e.getMessage());
-                        throw e;
+                    } catch (Exception e1) {
+                        logger.error("Failed to remove " + remoteFilePath + ": " + e1.getMessage());
+
+                        try {
+                            logger.info("Change Permission to 511d(777)");
+                            channelSftp.chmod(511, remoteFilePath);
+                        } catch (Exception e2) {
+                            logger.error(
+                                    "Failed to remove (after changing permission) "
+                                            + remoteFilePath
+                                            + ": "
+                                            + e2.getMessage());
+                            throw e2;
+                        }
                     }
                 });
     }
