@@ -6,7 +6,6 @@ import ca.bc.gov.open.crdp.process.scanner.configuration.QueueConfig;
 import ca.bc.gov.open.sftp.starter.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -110,11 +109,6 @@ public class ScannerService {
             cleanUp(inFileDir);
 
             // Create Processing folder
-            log.info(
-                    "ProcessingDir:"
-                            + processingDir
-                            + " exists:"
-                            + fileService.exists(processingDir));
             if (!fileService.exists(processingDir)) {
                 log.info("Making Processing Dir:" + processingDir);
                 // 493 -> 111 101 101 -> 755
@@ -168,7 +162,6 @@ public class ScannerService {
     private void cleanUp(String headFolderPath) {
         // delete processed folders (delivered from Ottawa).
         for (var folder : fileService.listFiles(headFolderPath)) {
-            log.info("Checking... " + folder);
             if (!fileService.isDirectory(folder)
                     || getFileName(folder).equals("Processing")
                     || (getFileName(folder).equals(".") || getFileName(folder).equals(".."))) {
@@ -194,7 +187,7 @@ public class ScannerService {
         }
     }
 
-    private void recursiveScan(String[] arr, int index, int level) throws IOException {
+    private void recursiveScan(String[] arr, int index, int level) {
         // terminate condition
         if (index == arr.length) return;
         try {
