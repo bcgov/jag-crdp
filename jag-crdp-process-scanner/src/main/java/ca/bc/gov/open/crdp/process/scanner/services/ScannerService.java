@@ -178,12 +178,14 @@ public class ScannerService {
                         log.info("Old file detected: " + fileService.lastModify(f));
                         log.info("Deleting... " + f);
                         fileService.removeFolder(f);
+                        log.info("Deleting " + folder + " Completed!");
                     }
                 }
                 continue;
             }
             log.info("Deleting... " + folder);
             fileService.removeFolder(folder);
+            log.info("Deleting " + folder + " Completed!");
         }
     }
 
