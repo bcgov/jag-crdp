@@ -157,9 +157,20 @@ public class SftpServiceImpl implements FileService {
                                 logger.info(
                                         sourceFileName + UNIX_SEPARATOR + lsEntry.getFilename());
                                 if (!lsEntry.getFilename().startsWith(".")) {
+                                    logger.info(
+                                            "moving "
+                                                    + sourceFileName
+                                                    + UNIX_SEPARATOR
+                                                    + lsEntry.getFilename()
+                                                    + " to "
+                                                    + sftpDestinationFilename
+                                                    + UNIX_SEPARATOR
+                                                    + lsEntry.getFilename());
                                     channelSftp.rename(
                                             sourceFileName + UNIX_SEPARATOR + lsEntry.getFilename(),
-                                            sftpDestinationFilename);
+                                            sftpDestinationFilename
+                                                    + UNIX_SEPARATOR
+                                                    + lsEntry.getFilename());
                                 }
                             }
                         } else {
