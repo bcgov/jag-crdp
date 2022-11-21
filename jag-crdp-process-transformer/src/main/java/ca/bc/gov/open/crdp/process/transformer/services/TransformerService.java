@@ -164,12 +164,12 @@ public class TransformerService {
                 if (!getFileName(f).startsWith(".")
                         && fileService.isDirectory(f)
                         && fileService.listFiles(f).size() <= 2) {
-                    log.info("Deleting... " + f);
+                    log.info("Deleting1... " + f);
                     fileService.removeFolder(f);
                 }
             }
             if (fileService.listFiles(folder).size() <= 2) {
-                log.info("Deleting... " + folder);
+                log.info("Deleting2... " + folder);
                 fileService.removeFolder(folder);
             }
         }
@@ -621,18 +621,10 @@ public class TransformerService {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
         try {
-            log.info("validateXml - 1");
             ByteArrayInputStream xmlFileForValidation = fileService.getContent(xmlFile);
-            log.info("validateXml - 2");
-            log.info("xmlFileForValidation.readAllBytes: " + xmlFileForValidation);
-            log.info("validateXml - 3");
             Schema schema = factory.newSchema(schemaFile);
-            log.info("validateXml - 4");
             Source streamSource = new StreamSource(xmlFileForValidation);
-            log.info("validateXml - 5");
-            log.info("streamSource: " + streamSource);
             schema.newValidator().validate(streamSource);
-            log.info("validateXml - 6");
             return true;
         } catch (Exception e) {
             log.error("validateXml error: " + e.getMessage());
