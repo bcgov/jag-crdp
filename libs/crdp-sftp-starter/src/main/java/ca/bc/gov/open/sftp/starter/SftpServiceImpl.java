@@ -143,11 +143,11 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
+                        logger.info("moveFile...");
+                        logger.info("src is exist: " + (channelSftp.lstat(sourceFileName) != null));
+                        logger.info("src is Dir: " + channelSftp.lstat(sourceFileName).isDir());
                         logger.info(
-                                "moveFile -- src is Dir: "
-                                        + channelSftp.lstat(sourceFileName).isDir()
-                                        + " dest exist: "
-                                        + (channelSftp.lstat(destinationFilename) != null));
+                                "dest exist: " + (channelSftp.lstat(destinationFilename) != null));
                         String parentDir =
                                 destinationFilename.substring(
                                         0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
