@@ -160,7 +160,6 @@ public class ScannerService {
     }
 
     private void cleanUp(String headFolderPath) {
-        // delete processed folders (delivered from Ottawa).
         for (var folder : fileService.listFiles(headFolderPath)) {
             if (!fileService.isDirectory(folder)
                     || getFileName(folder).equals("Processing")
@@ -168,6 +167,7 @@ public class ScannerService {
                 continue;
             }
 
+            // delete old Errors and Completed subfolders
             if (getFileName(folder).equals("Errors") || getFileName(folder).equals("Completed")) {
                 for (var f : fileService.listFiles(folder)) {
                     if (getFileName(f).startsWith(".")) {
@@ -182,8 +182,20 @@ public class ScannerService {
                 }
                 continue;
             }
-            log.info("Deleting... " + folder);
-            fileService.removeFolder(folder);
+
+            // delete processed folders (delivered from Ottawa).
+            for (String f : fileService.listFiles(folder)) {
+                if (!getFileName(f).startsWith(".")
+                        && fileService.isDirectory(f)
+                        && fileService.listFiles(f).size() == 0) {
+                    log.info("Deleting... " + f);
+                    fileService.removeFolder(f);
+                }
+            }
+            if (fileService.listFiles(folder).size() == 0) {
+                log.info("Deleting... " + folder);
+                fileService.removeFolder(folder);
+            }
         }
     }
 
