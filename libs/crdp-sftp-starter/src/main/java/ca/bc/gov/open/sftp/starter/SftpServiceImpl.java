@@ -143,17 +143,16 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
+                        logger.info(
+                                "moveFile -- src is Dir: "
+                                        + channelSftp.lstat(sourceFileName).isDir()
+                                        + " dest exist: "
+                                        + (channelSftp.lstat(destinationFilename) != null));
                         if (channelSftp.lstat(sourceFileName).isDir()
                                 && channelSftp.lstat(destinationFilename) != null) {
-                            logger.info(
-                                    "moveFile -- isDir: "
-                                            + channelSftp.lstat(sourceFileName).isDir()
-                                            + " exist: "
-                                            + (channelSftp.lstat(destinationFilename) != null));
                             recursiveMakeFolderSvc(destinationFilename);
-                        } else {
-                            channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         }
+                        channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         logger.debug(
                                 "Successfully renamed files on the sftp server from {} to {}",
                                 sftpRemoteFilename,
