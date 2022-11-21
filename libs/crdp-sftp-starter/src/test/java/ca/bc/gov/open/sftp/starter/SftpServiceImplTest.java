@@ -1,9 +1,6 @@
 package ca.bc.gov.open.sftp.starter;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSchException;
-import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.*;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -91,7 +88,9 @@ public class SftpServiceImplTest {
     }
 
     @Test
-    public void withValidFileShouldMove() {
+    public void withValidFileShouldMove() throws SftpException {
+        SftpATTRS attributes = Mockito.mock(SftpATTRS.class);
+        Mockito.when(channelSftpMock.lstat(Mockito.anyString())).thenReturn(attributes);
         Assertions.assertDoesNotThrow(
                 () -> {
                     sut.moveFile(FILE_1, FILE_2);
@@ -113,6 +112,8 @@ public class SftpServiceImplTest {
         Mockito.doThrow(SftpException.class)
                 .when(channelSftpMock)
                 .rename(Mockito.anyString(), Mockito.anyString());
+        SftpATTRS attributes = Mockito.mock(SftpATTRS.class);
+        Mockito.when(channelSftpMock.lstat(Mockito.anyString())).thenReturn(attributes);
         Assertions.assertThrows(
                 StarterSftpException.class,
                 () -> {
@@ -134,7 +135,6 @@ public class SftpServiceImplTest {
 
     @Test
     public void forPutWithSftpExceptionShouldThrowDpsSftpException() throws SftpException {
-        String value = "some text";
         Mockito.doThrow(SftpException.class)
                 .when(channelSftpMock)
                 .put(Mockito.any(InputStream.class), Mockito.eq(CASE_2));
@@ -143,5 +143,18 @@ public class SftpServiceImplTest {
                 () -> {
                     sut.put(new ByteArrayInputStream(FAKE_INPUT_STREAM.getBytes()), CASE_2);
                 });
+    }
+
+    @Test
+    public void isDirectoryTest() throws SftpException {
+        SftpATTRS attributes = Mockito.mock(SftpATTRS.class);
+        Mockito.when(channelSftpMock.lstat(Mockito.anyString())).thenReturn(attributes);
+        Assertions.assertDoesNotThrow(() -> sut.isDirectory(FILE_1));
+    }
+
+    @Test
+    public void isDirectoryThrowSftpExceptionTest() throws SftpException {
+        Mockito.doThrow(SftpException.class).when(channelSftpMock).lstat(Mockito.eq(FILE_1));
+        Assertions.assertThrows(StarterSftpException.class, () -> sut.isDirectory(FILE_1));
     }
 }

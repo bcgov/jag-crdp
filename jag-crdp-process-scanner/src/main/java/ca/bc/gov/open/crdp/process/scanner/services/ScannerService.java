@@ -164,13 +164,13 @@ public class ScannerService {
         for (var folder : fileService.listFiles(headFolderPath)) {
             if (!fileService.isDirectory(folder)
                     || getFileName(folder).equals("Processing")
-                    || (getFileName(folder).equals(".") || getFileName(folder).equals(".."))) {
+                    || (getFileName(folder).startsWith("."))) {
                 continue;
             }
 
             if (getFileName(folder).equals("Errors") || getFileName(folder).equals("Completed")) {
                 for (var f : fileService.listFiles(folder)) {
-                    if (getFileName(f).equals(".") || getFileName(f).equals("..")) {
+                    if (getFileName(f).startsWith(".")) {
                         continue;
                     }
                     if (new Date().getTime() - fileService.lastModify(f)

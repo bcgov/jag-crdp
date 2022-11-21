@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 public class SftpServiceImpl implements FileService {
 
+    private static final char UNIX_SEPARATOR = '/';
+
     interface SftpFunction {
         void exec(ChannelSftp channelSftp) throws SftpException;
     }
@@ -141,7 +143,17 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
+                        if (channelSftp.lstat(sourceFileName).isDir()
+                                && channelSftp.lstat(destinationFilename) != null) {
+                            logger.info(
+                                    "moveFile -- isDir: "
+                                            + channelSftp.lstat(sourceFileName).isDir()
+                                            + " exist: "
+                                            + (channelSftp.lstat(destinationFilename) != null));
+                            recursiveMakeFolderSvc(destinationFilename);
+                        } else {
+                            channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
+                        }
                         logger.debug(
                                 "Successfully renamed files on the sftp server from {} to {}",
                                 sftpRemoteFilename,
@@ -157,6 +169,17 @@ public class SftpServiceImpl implements FileService {
                         throw e;
                     }
                 });
+    }
+
+    private void recursiveMakeFolderSvc(String destinationFilename) {
+        String parentDir =
+                destinationFilename.substring(0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
+        logger.info(parentDir + " exist: " + exists(parentDir));
+        if (!exists(parentDir)) {
+            recursiveMakeFolderSvc(parentDir);
+        } else {
+            makeFolder(destinationFilename);
+        }
     }
 
     /**
@@ -267,9 +290,7 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        logger.info("chmod " + permission);
                         channelSftp.chmod(permission, remoteFilePath);
-                        logger.info("chmod completed " + permission);
                         logger.debug("Successfully chmod of folder [{}]", remoteFilePath);
                     } catch (Exception e) {
                         logger.error(
@@ -307,7 +328,6 @@ public class SftpServiceImpl implements FileService {
                                             + getFilePath(filePath)
                                             + ": "
                                             + e.getMessage());
-
                             throw e;
                         }
                     }
