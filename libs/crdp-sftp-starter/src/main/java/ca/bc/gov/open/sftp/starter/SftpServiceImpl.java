@@ -199,10 +199,9 @@ public class SftpServiceImpl implements FileService {
         logger.info(parentDir + " exist: " + exists(parentDir));
         if (!exists(parentDir)) {
             recursiveMakeFolderSvc(parentDir);
-        } else {
-            logger.info("mkdir - " + destinationFilename);
-            makeFolder(destinationFilename);
         }
+        logger.info("mkdir - " + destinationFilename);
+        makeFolder(destinationFilename);
     }
 
     /**
