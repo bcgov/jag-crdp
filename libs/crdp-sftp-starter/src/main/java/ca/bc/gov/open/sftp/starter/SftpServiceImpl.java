@@ -147,7 +147,6 @@ public class SftpServiceImpl implements FileService {
                             logger.info("moveFolder..." + sourceFileName);
                             if (!exists(destinationFilename)) {
                                 // if parent directory of the destination does not exist
-                                logger.info("create dest folder..." + destinationFilename);
                                 recursiveMakeFolderSvc(destinationFilename);
                             }
                             Vector files = channelSftp.ls(sourceFileName);
@@ -196,11 +195,9 @@ public class SftpServiceImpl implements FileService {
     private void recursiveMakeFolderSvc(String destinationFilename) {
         String parentDir =
                 destinationFilename.substring(0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
-        logger.info(parentDir + " exist: " + exists(parentDir));
         if (!exists(parentDir)) {
             recursiveMakeFolderSvc(parentDir);
         }
-        logger.info("mkdir - " + destinationFilename);
         makeFolder(destinationFilename);
     }
 
