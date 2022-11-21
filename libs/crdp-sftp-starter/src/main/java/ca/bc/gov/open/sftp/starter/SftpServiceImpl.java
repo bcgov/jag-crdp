@@ -148,9 +148,12 @@ public class SftpServiceImpl implements FileService {
                                         + channelSftp.lstat(sourceFileName).isDir()
                                         + " dest exist: "
                                         + (channelSftp.lstat(destinationFilename) != null));
-                        if (channelSftp.lstat(sourceFileName).isDir()
-                                && channelSftp.lstat(destinationFilename) != null) {
-                            recursiveMakeFolderSvc(destinationFilename);
+                        String parentDir =
+                                destinationFilename.substring(
+                                        0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
+                        if (channelSftp.lstat(parentDir) == null) {
+                            // if parent directory of the destination does not exist
+                            recursiveMakeFolderSvc(parentDir);
                         }
                         channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         logger.debug(

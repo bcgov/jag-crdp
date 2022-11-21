@@ -93,7 +93,7 @@ public class SftpServiceImplTest {
         Mockito.when(channelSftpMock.lstat(Mockito.anyString())).thenReturn(attributes);
         Assertions.assertDoesNotThrow(
                 () -> {
-                    sut.moveFile(FILE_1, FILE_2);
+                    sut.moveFile(CASE_1 + '/' + FILE_1, CASE_1 + '/' + FILE_2);
                 });
     }
 
@@ -117,7 +117,7 @@ public class SftpServiceImplTest {
         Assertions.assertThrows(
                 StarterSftpException.class,
                 () -> {
-                    sut.moveFile(FILE_1, FILE_2);
+                    sut.moveFile(CASE_1 + '/' + FILE_1, CASE_1 + '/' + FILE_2);
                 });
     }
 
