@@ -175,7 +175,9 @@ public class ScannerService {
                     }
                     if (new Date().getTime() - fileService.lastModify(f)
                             > recordTTLHour * 60 * 60 * 1000) {
+                        log.info("Current timestamp: " + new Date().getTime());
                         log.info("Old file detected: " + fileService.lastModify(f));
+                        log.info("Diff: " + (new Date().getTime() - fileService.lastModify(f)));
                         log.info("Deleting... " + f);
                         fileService.removeFolder(f);
                     }
