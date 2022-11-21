@@ -105,9 +105,6 @@ public class ScannerService {
                         + " isDirectory:"
                         + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
-            // Clean up IN directory
-            cleanUp(inFileDir);
-
             // Create Processing folder
             if (!fileService.exists(processingDir)) {
                 log.info("Making Processing Dir:" + processingDir);
@@ -157,6 +154,9 @@ public class ScannerService {
         } else {
             log.error("Incoming file directory \"" + inFileDir + "\" does not exist");
         }
+
+        // Clean up IN directory
+        cleanUp(inFileDir);
     }
 
     private void cleanUp(String headFolderPath) {
@@ -178,14 +178,12 @@ public class ScannerService {
                         log.info("Old file detected: " + fileService.lastModify(f));
                         log.info("Deleting... " + f);
                         fileService.removeFolder(f);
-                        log.info("Deleting " + folder + " Completed!");
                     }
                 }
                 continue;
             }
             log.info("Deleting... " + folder);
             fileService.removeFolder(folder);
-            log.info("Deleting " + folder + " Completed!");
         }
     }
 
