@@ -160,6 +160,9 @@ public class TransformerService {
 
     private void cleanUp(String processingDir) {
         for (String folder : fileService.listFiles(processingDir)) {
+            if (getFileName(folder).startsWith(".")) {
+                continue;
+            }
             for (String f : fileService.listFiles(folder)) {
                 if (!getFileName(f).startsWith(".")
                         && fileService.isDirectory(f)
