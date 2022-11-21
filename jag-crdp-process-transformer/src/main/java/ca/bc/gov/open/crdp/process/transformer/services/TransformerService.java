@@ -163,11 +163,11 @@ public class TransformerService {
             for (String f : fileService.listFiles(folder)) {
                 if (!getFileName(f).startsWith(".")
                         && fileService.isDirectory(f)
-                        && fileService.listFiles(f).size() <= 2) {
+                        && fileService.listFiles(f).size() == 0) {
                     fileService.removeFolder(f);
                 }
             }
-            if (fileService.listFiles(folder).size() <= 2) {
+            if (fileService.listFiles(folder).size() == 0) {
                 fileService.removeFolder(folder);
             }
         }
@@ -310,9 +310,6 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             SaveErrorResponse.class);
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "SaveError")));
             if (!response.getBody().getResultCd().equals("0")) {
                 log.error(
                         objectMapper.writeValueAsString(
@@ -321,6 +318,10 @@ public class TransformerService {
                                         "SaveError",
                                         response.getBody().getResponseMessageTxt(),
                                         req)));
+            } else {
+                log.info(
+                        objectMapper.writeValueAsString(
+                                new RequestSuccessLog("Request Success", "SaveError")));
             }
         } catch (Exception e) {
             log.error(

@@ -187,12 +187,12 @@ public class ScannerService {
             for (String f : fileService.listFiles(folder)) {
                 if (!getFileName(f).startsWith(".")
                         && fileService.isDirectory(f)
-                        && fileService.listFiles(f).size() <= 2) {
+                        && fileService.listFiles(f).size() == 0) {
                     log.info("Deleting... " + f);
                     fileService.removeFolder(f);
                 }
             }
-            if (fileService.listFiles(folder).size() <= 2) {
+            if (fileService.listFiles(folder).size() == 0) {
                 log.info("Deleting... " + folder);
                 fileService.removeFolder(folder);
             }
