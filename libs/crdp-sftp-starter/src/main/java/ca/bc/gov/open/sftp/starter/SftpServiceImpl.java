@@ -143,18 +143,26 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        logger.info("moveFile...");
-                        logger.info("src is exist: " + (channelSftp.lstat(sourceFileName)));
-                        logger.info("src is Dir: " + channelSftp.lstat(sourceFileName).isDir());
-                        String parentDir =
-                                destinationFilename.substring(
-                                        0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
-                        logger.info("dest exist: " + exists(destinationFilename));
-                        if (isDirectory(sourceFileName) && !exists(destinationFilename)) {
-                            // if parent directory of the destination does not exist
-                            recursiveMakeFolderSvc(destinationFilename);
+                        if (isDirectory(sourceFileName)) {
+                            logger.info("moveFolder..." + sourceFileName);
+                            if (!exists(destinationFilename)) {
+                                // if parent directory of the destination does not exist
+                                logger.info("create dest folder..." + destinationFilename);
+                                recursiveMakeFolderSvc(destinationFilename);
+                            }
+                            Vector files = channelSftp.ls(sourceFileName);
+                            logger.info("number of files " + files.size());
+                            for (int i = 0; i < files.size(); i++) {
+                                ChannelSftp.LsEntry lsEntry = (ChannelSftp.LsEntry) files.get(i);
+                                logger.info(
+                                        sourceFileName + UNIX_SEPARATOR + lsEntry.getFilename());
+                                channelSftp.rename(
+                                        sourceFileName + UNIX_SEPARATOR + lsEntry.getFilename(),
+                                        sftpDestinationFilename);
+                            }
+                        } else {
+                            channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         }
-                        channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         logger.debug(
                                 "Successfully renamed files on the sftp server from {} to {}",
                                 sftpRemoteFilename,
@@ -179,6 +187,7 @@ public class SftpServiceImpl implements FileService {
         if (!exists(parentDir)) {
             recursiveMakeFolderSvc(parentDir);
         } else {
+            logger.info("mkdir - " + destinationFilename);
             makeFolder(destinationFilename);
         }
     }
