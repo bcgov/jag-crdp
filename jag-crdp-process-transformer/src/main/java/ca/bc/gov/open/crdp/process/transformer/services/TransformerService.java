@@ -128,7 +128,9 @@ public class TransformerService {
 
             try {
                 // create completed folder with last scanning timestamp
-                if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
+                if (!completedFilesToMove.isEmpty()
+                        || !completedFoldersToMove.isEmpty()
+                                && !fileService.exists(completedDir + "/" + timestamp)) {
                     fileService.makeFolder(completedDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
@@ -139,7 +141,9 @@ public class TransformerService {
                 }
 
                 // create errors folder with last scanning timestamp
-                if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
+                if (!erredFilesToMove.isEmpty()
+                        || !erredFoldersToMove.isEmpty()
+                                && !fileService.exists(errorsDir + "/" + timestamp)) {
                     log.info("making " + errorsDir + "/" + timestamp);
                     fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
