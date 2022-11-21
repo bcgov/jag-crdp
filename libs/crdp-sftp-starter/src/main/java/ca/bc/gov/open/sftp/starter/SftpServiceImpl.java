@@ -144,16 +144,15 @@ public class SftpServiceImpl implements FileService {
                 channelSftp -> {
                     try {
                         logger.info("moveFile...");
-                        logger.info("src is exist: " + (channelSftp.lstat(sourceFileName) != null));
+                        logger.info("src is exist: " + (channelSftp.lstat(sourceFileName)));
                         logger.info("src is Dir: " + channelSftp.lstat(sourceFileName).isDir());
-                        logger.info(
-                                "dest exist: " + (channelSftp.lstat(destinationFilename) != null));
                         String parentDir =
                                 destinationFilename.substring(
                                         0, destinationFilename.lastIndexOf(UNIX_SEPARATOR));
-                        if (channelSftp.lstat(parentDir) == null) {
+                        logger.info("dest exist: " + exists(destinationFilename));
+                        if (isDirectory(sourceFileName) && !exists(destinationFilename)) {
                             // if parent directory of the destination does not exist
-                            recursiveMakeFolderSvc(parentDir);
+                            recursiveMakeFolderSvc(destinationFilename);
                         }
                         channelSftp.rename(sftpRemoteFilename, sftpDestinationFilename);
                         logger.debug(
