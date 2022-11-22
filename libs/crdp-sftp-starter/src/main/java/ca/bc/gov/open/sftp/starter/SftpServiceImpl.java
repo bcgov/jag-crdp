@@ -410,7 +410,7 @@ public class SftpServiceImpl implements FileService {
      * Get the last datetime timestamp of a file
      *
      * @param filePath
-     * @return long timestamp
+     * @return long milliseconds timestamp
      */
     @Override
     public long lastModify(String filePath) {
@@ -419,7 +419,8 @@ public class SftpServiceImpl implements FileService {
         executeSftpFunction(
                 channelSftp -> {
                     try {
-                        result.set(channelSftp.lstat(remoteFilePath).getMTime());
+                        // Note that getMTime returns timestamp in seconds
+                        result.set(channelSftp.lstat(remoteFilePath).getMTime() * 1000);
                         logger.debug(
                                 "Last modified of "
                                         + remoteFilePath
