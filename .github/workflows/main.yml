@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
         app1:
-            description: 'App Name (jag-crdp-transmit-receiver)'
-            required: true
-            default: 'jag-crdp-transmit-receiver'
+          description: 'App Name (jag-crdp-transmit-receiver)'
+          required: true
+          default: 'jag-crdp-transmit-receiver'
         app2:
           description: 'App Name (jag-crdp-transmit-sender)'
           required: true
@@ -24,15 +24,14 @@ on:
           required: true
           default: 'jag-crdp-process-transformer'
         env:
-            description: 'Image Target Env'  
-            required: true
-            default: 'dev'
+          description: 'Image Target Env'  
+          required: true
+          default: 'dev'
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build-push-image:
-    # The type of runner that the job will run on
     runs-on: ubuntu-20.04
     environment: ${{ github.event.inputs.env }}
     env:
