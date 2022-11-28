@@ -288,7 +288,7 @@ jobs:
           OPENSHIFT_NAMESPACE: ${{secrets.OPENSHIFT_LICENSE_PLATE}}-${{ github.event.inputs.imageTargetEnv }}
           OPENSHIFT_USER: ${{secrets.OPENSHIFT_SA_Env_DEPLOYER_NAME}}
         with:
-          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL}}
+          openshift_server_url: ${{secrets.OPENSHIFT_SERVER_URL_DR}}
           openshift_token: ${{secrets.OPENSHIFT_SA_ENV_DEPLOYER_TOKEN_DR}}
           namespace: ${OPENSHIFT_NAMESPACE}
         
