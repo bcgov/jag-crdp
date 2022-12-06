@@ -29,20 +29,27 @@
         <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
-    <modules>
-        <module>libs/crdp-starters-bom</module>
-        <module>libs/crdp-sftp-starter</module>
-        <module>jag-crdp-process-scanner</module>
-        <module>jag-crdp-process-transformer</module>
-        <module>jag-crdp-process-models</module>
-        <module>jag-crdp-transmit-receiver</module>
-        <module>jag-crdp-transmit-sender</module>
-        <module>jag-crdp-transmit-models</module>
-        <module>jag-crdp-common-models</module>
-        <module>crdp-code-coverage</module>
-    </modules>
-
     <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>libs/crdp-starters-bom</module>
+                <module>libs/crdp-sftp-starter</module>
+                <module>jag-crdp-common-models</module>
+                <module>jag-crdp-transmit-models</module>
+                <module>jag-crdp-transmit-receiver</module>
+                <module>jag-crdp-transmit-sender</module>
+                <module>jag-crdp-process-models</module>
+                <module>jag-crdp-process-scanner</module>
+                <module>jag-crdp-process-transformer</module>
+                <module>crdp-code-coverage</module>
+            </modules>
+            <activation>
+                <activeByDefault>
+                    true
+                </activeByDefault>
+            </activation>
+        </profile>
         <profile>
             <id>libs</id>
             <modules>
