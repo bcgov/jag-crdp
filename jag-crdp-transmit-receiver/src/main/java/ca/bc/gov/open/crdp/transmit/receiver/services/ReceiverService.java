@@ -35,8 +35,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
-import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
-import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -78,8 +76,6 @@ public class ReceiverService {
         partTwoIds = new ArrayList<>();
     }
 
-    @PayloadRoot(localPart = "generateIncomingRequestFile")
-    @ResponsePayload
     @Scheduled(cron = "${crdp.cron-job-outgoing-file}")
     public int GenerateIncomingRequestFile() throws IOException {
         partOneIds.clear();
