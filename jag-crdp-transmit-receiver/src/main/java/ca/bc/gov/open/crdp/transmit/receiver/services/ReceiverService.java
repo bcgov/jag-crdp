@@ -113,8 +113,7 @@ public class ReceiverService {
             return -1;
         }
 
-        if (reqFileResp.getBody().getPartOneCount()
-                        + reqFileResp.getBody().getPartTwoCount()
+        if (reqFileResp.getBody().getPartOneCount() + reqFileResp.getBody().getPartTwoCount()
                 == 0) {
             log.info("Total count = 0, no xml file will be created");
             return 0;
