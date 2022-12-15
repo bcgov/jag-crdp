@@ -106,7 +106,6 @@ public class TransformerService {
         this.timestamp = pub.getDateTime();
 
         if (fileService.exists(processingDir) && fileService.isDirectory(processingDir)) {
-            log.info("processFileService: 1");
             // create Completed folder
             if (!fileService.exists(completedDir)) {
                 fileService.makeFolder(completedDir, PERMISSIONS_DECIMAL);
@@ -117,7 +116,6 @@ public class TransformerService {
                 fileService.makeFolder(errorsDir, PERMISSIONS_DECIMAL);
             }
 
-            log.info("processFileService: 2");
             if (!fileService.isDirectory(pub.getFilePath())) {
                 // process files
                 processFile(pub.getFilePath());
@@ -171,12 +169,10 @@ public class TransformerService {
                 if (!getFileName(f).startsWith(".")
                         && fileService.isDirectory(f)
                         && fileService.listFiles(f).size() <= 2) {
-                    log.info("Deleting1... " + f);
                     fileService.removeFolder(f);
                 }
             }
             if (fileService.listFiles(folder).size() <= 2) {
-                log.info("Deleting2... " + folder);
                 fileService.removeFolder(folder);
             }
         }
@@ -185,11 +181,8 @@ public class TransformerService {
     private void processFile(String filePath) {
         String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
         String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-        log.info("filePath:" + filePath);
-        log.info("processFile: 1 getFileName:" + getFileName(filePath));
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
-                log.info("processFile: 2");
                 processAuditSvc(filePath);
 
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
@@ -209,8 +202,6 @@ public class TransformerService {
     public void processAuditSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         File schema = new File(auditSchemaPath);
-        log.info("auditSchemaPath exist: " + schema.exists());
-        log.info("audit xml exist: " + fileService.exists(fileName));
 
         if (!validateXml(auditSchemaPath, fileName)) {
             throw new IOException("XML file schema validation failed. fileName: " + fileName);

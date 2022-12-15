@@ -74,6 +74,10 @@ public class ReceiverService {
         partOneIds = new ArrayList<>();
         regModFileIds = new ArrayList<>();
         partTwoIds = new ArrayList<>();
+
+        // create empty queue
+        this.rabbitTemplate.convertAndSend(
+                queueConfig.getTopicExchangeName(), queueConfig.getReceiverRoutingkey());
     }
 
     @Scheduled(cron = "${crdp.cron-job-outgoing-file}")
@@ -107,6 +111,12 @@ public class ReceiverService {
                                     ex.getMessage(),
                                     null)));
             return -1;
+        }
+
+        if (reqFileResp.getBody().getPartOneCount() + reqFileResp.getBody().getPartTwoCount()
+                == 0) {
+            log.info("Total count = 0, no xml file will be created");
+            return 0;
         }
 
         String xmlString = xmlBuilder(reqFileResp.getBody());
