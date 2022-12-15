@@ -161,6 +161,8 @@ public class ReceiverServiceTests {
         generateIncomingReqFileResponse.setPartOneData(partOneDataList);
         generateIncomingReqFileResponse.setErrMsg("A");
         generateIncomingReqFileResponse.setStatus("A");
+        generateIncomingReqFileResponse.setPartOneCount(1);
+        generateIncomingReqFileResponse.setPartTwoCount(2);
 
         ResponseEntity<GenerateIncomingReqFileResponse> responseEntity =
                 new ResponseEntity<>(generateIncomingReqFileResponse, HttpStatus.OK);
@@ -181,6 +183,8 @@ public class ReceiverServiceTests {
     @Test
     public void generateIncomingRequestFileFail3() throws IOException {
         var generateIncomingReqFileResponse = new GenerateIncomingReqFileResponse();
+        generateIncomingReqFileResponse.setPartOneCount(1);
+        generateIncomingReqFileResponse.setPartTwoCount(2);
 
         generateIncomingReqFileResponse.setFileName("unittest.xml");
         generateIncomingReqFileResponse.setStatus("1");
