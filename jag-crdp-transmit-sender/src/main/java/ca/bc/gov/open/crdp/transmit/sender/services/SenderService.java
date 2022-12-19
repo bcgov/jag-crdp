@@ -74,15 +74,12 @@ public class SenderService {
                             HttpMethod.POST,
                             payload,
                             new ParameterizedTypeReference<>() {});
-
-            if (resp.getBody().get("responseCd").equals("0")) {
+            if (resp.getBody().get("responseCd").equals("1")) {
                 throw new ORDSException(resp.getBody().get("responseMessageTxt"));
             }
-
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "updateTransmissionSent")));
-
             return 0;
         } catch (Exception ex) {
             log.error(

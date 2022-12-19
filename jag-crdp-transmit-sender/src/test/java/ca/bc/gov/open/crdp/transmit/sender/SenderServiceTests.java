@@ -48,7 +48,7 @@ class SenderServiceTests {
         req.setRegModFileIds(new ArrayList<>());
 
         Map<String, String> out = new HashMap<>();
-        out.put("responseCd", "1");
+        out.put("responseCd", "0");
         ResponseEntity<Map<String, String>> responseEntity =
                 new ResponseEntity<>(out, HttpStatus.OK);
 
@@ -74,7 +74,7 @@ class SenderServiceTests {
         req.setRegModFileIds(new ArrayList<>());
 
         Map<String, String> out = new HashMap<>();
-        out.put("responseCd", "0");
+        out.put("responseCd", "1");
         out.put("responseMessageTxt", "A");
         ResponseEntity<Map<String, String>> responseEntity =
                 new ResponseEntity<>(out, HttpStatus.OK);
