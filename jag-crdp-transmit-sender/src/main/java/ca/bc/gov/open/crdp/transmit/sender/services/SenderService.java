@@ -74,7 +74,8 @@ public class SenderService {
                             HttpMethod.POST,
                             payload,
                             new ParameterizedTypeReference<>() {});
-            if (resp.getBody().get("responseCd").equals("1")) {
+            if (resp.getBody().get("responseCd") != null
+                    && resp.getBody().get("responseCd").equals("1")) {
                 throw new ORDSException(resp.getBody().get("responseMessageTxt"));
             }
             log.info(

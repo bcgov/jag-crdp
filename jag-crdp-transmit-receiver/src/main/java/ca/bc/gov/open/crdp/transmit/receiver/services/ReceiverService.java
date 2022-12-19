@@ -97,7 +97,8 @@ public class ReceiverService {
                             HttpMethod.GET,
                             new HttpEntity<>(new HttpHeaders()),
                             GenerateIncomingReqFileResponse.class);
-            if (reqFileResp.getBody().getResponseCd().equals("1")) {
+            if (reqFileResp.getBody().getResponseCd() != null
+                    && reqFileResp.getBody().getResponseCd().equals("1")) {
                 throw new ORDSException(reqFileResp.getBody().getResponseMessageTxt());
             }
             log.info(
@@ -145,7 +146,8 @@ public class ReceiverService {
                             HttpMethod.POST,
                             payload,
                             new ParameterizedTypeReference<>() {});
-            if (saveFileResp.getBody().get("responseCd").equals("1")) {
+            if (saveFileResp.getBody().get("responseCd") != null
+                    && saveFileResp.getBody().get("responseCd").equals("1")) {
                 throw new ORDSException(saveFileResp.getBody().get("responseMessageTxt"));
             }
             log.info(
