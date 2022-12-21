@@ -9,6 +9,7 @@ import ca.bc.gov.open.crdp.transmit.receiver.configuration.QueueConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -134,7 +135,7 @@ public class ReceiverService {
                 new HttpEntity<>(
                         new SaveDataExchangeFileRequest(
                                 reqFileResp.getBody().getFileName(),
-                                xmlString,
+                                xmlString.getBytes(StandardCharsets.UTF_8),
                                 reqFileResp.getBody().getDataExchangeFileSeqNo()),
                         new HttpHeaders());
 

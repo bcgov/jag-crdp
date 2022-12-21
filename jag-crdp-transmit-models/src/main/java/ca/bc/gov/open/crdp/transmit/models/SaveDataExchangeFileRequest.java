@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveDataExchangeFileRequest implements Serializable {
     private String fileName;
-    private String xmlString;
+    private byte[] xmlString;
     private String dataExchangeFileSeqNo;
 }
