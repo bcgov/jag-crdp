@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,8 @@ public class SenderService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "update-sent");
 
         UpdateTransmissionSentRequest req = new UpdateTransmissionSentRequest();
-        req.setCurrentDate(LocalDateTime.now().toString());
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-mm-dd HH:mm:ss");
+        req.setCurrentDate(LocalDateTime.now().format(format));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
