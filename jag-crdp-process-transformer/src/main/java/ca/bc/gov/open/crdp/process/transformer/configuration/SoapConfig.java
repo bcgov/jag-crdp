@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.xml.soap.SOAPMessage;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -24,6 +26,11 @@ import org.springframework.ws.transport.http.MessageDispatcherServlet;
 @Configuration
 @Slf4j
 public class SoapConfig extends WsConfigurerAdapter {
+    @Value("${crdp.username}")
+    private String username;
+
+    @Value("${crdp.password}")
+    private String password;
 
     @Bean
     public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(
@@ -38,6 +45,16 @@ public class SoapConfig extends WsConfigurerAdapter {
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getMessageConverters().add(0, createMappingJacksonHttpMessageConverter());
+        restTemplate
+                .getInterceptors()
+                .add(
+                        (request, body, execution) -> {
+                            String auth = username + ":" + password;
+                            byte[] encodedAuth = Base64.encodeBase64(auth.getBytes());
+                            request.getHeaders()
+                                    .add("Authorization", "Basic " + new String(encodedAuth));
+                            return execution.execute(request, body);
+                        });
         return restTemplate;
     }
 
