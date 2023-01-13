@@ -98,6 +98,16 @@ objects:
                   secretKeyRef:
                     name: ${COMPONENT_NAME}
                     key: ORDS_HOST
+              - name: ORDS_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: ${COMPONENT_NAME}
+                    key: ORDS_USERNAME
+              - name: ORDS_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ${COMPONENT_NAME}
+                    key: ORDS_PASSWORD
               - name: CRON_JOB_OUTGOING_FILE
                 valueFrom:
                   secretKeyRef:

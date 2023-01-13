@@ -4,6 +4,8 @@ security:
     username: ${BASIC_AUTH_USER}
 crdp:
   host: ${ORDS_HOST}
+  username: ${ORDS_USERNAME}
+  password: ${ORDS_PASSWORD}
   processing-dir: ${PROCESSING_DIR}
   completed-dir: ${COMPLETED_DIR}
   errors-dir: ${ERRORS_DIR}
