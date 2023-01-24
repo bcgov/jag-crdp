@@ -62,9 +62,7 @@ objects:
     selector:
       name: ${COMPONENT_NAME}
     strategy:
-      type: Rolling
-      maxSurge: 50%
-      maxUnavailable: 0
+      type: Recreate
     template:
       metadata:
         labels:
@@ -122,6 +120,16 @@ objects:
                   secretKeyRef:
                     name: ${COMPONENT_NAME}
                     key: ORDS_HOST
+              - name: ORDS_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: ${COMPONENT_NAME}
+                    key: ORDS_USERNAME
+              - name: ORDS_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: ${COMPONENT_NAME}
+                    key: ORDS_PASSWORD
               - name: RABBIT_MQ_HOST
                 valueFrom:
                   secretKeyRef:
@@ -184,11 +192,11 @@ objects:
                     key: SPLUNK_INDEX
             resources:
               limits:
-                cpu: 100m
-                memory: 200Mi
+                cpu: 75m
+                memory: 300Mi
               requests:
-                cpu: 50m
-                memory: 100Mi
+                cpu: 40m
+                memory: 180Mi
             livenessProbe:
               httpGet:
                 path: "/actuator/health"
