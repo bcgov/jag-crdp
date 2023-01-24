@@ -62,9 +62,7 @@ objects:
     selector:
       name: ${COMPONENT_NAME}
     strategy:
-      type: Rolling
-      maxSurge: 50%
-      maxUnavailable: 0
+      type: Recreate
     template:
       metadata:
         labels:
@@ -160,11 +158,11 @@ objects:
                     key: SPLUNK_INDEX
             resources:
               limits:
-                cpu: 100m
-                memory: 200Mi
+                cpu: 75m
+                memory: 300Mi
               requests:
-                cpu: 50m
-                memory: 100Mi
+                cpu: 40m
+                memory: 180Mi
             livenessProbe:
               httpGet:
                 path: "/actuator/health"
