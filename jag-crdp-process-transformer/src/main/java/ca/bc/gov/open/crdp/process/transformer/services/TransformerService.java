@@ -179,14 +179,15 @@ public class TransformerService {
     }
 
     private void processFile(String filePath) {
-        String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
-        String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
+        String auditRegex = "(?i)^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
+    String statusRegex = "(?i)^[A-Za-z]{4}O_STATUS.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
-
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
                 processStatusSvc(filePath);
+            } else {
+                throw new IOException("Unexpected file: " + getFileName(filePath));
             }
 
             // Move file to 'completed' folder on success (status or audit only)
