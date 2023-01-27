@@ -229,7 +229,7 @@ public class TransformerService {
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processAuditSvc")));
-            if (!resp.getBody().getResultCd().equals("0")) {
+            if (!resp.getBody().getResponseCd().equals("0")) {
                 throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
 
@@ -276,7 +276,7 @@ public class TransformerService {
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processStatusSvc")));
 
-            if (!resp.getBody().getResultCd().equals("0")) {
+            if (!resp.getBody().getResponseCd().equals("0")) {
                 throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
         } catch (Exception e) {
@@ -310,7 +310,7 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             SaveErrorResponse.class);
-            if (!response.getBody().getResultCd().equals("0")) {
+            if (!response.getBody().getResponseCd().equals("0")) {
                 log.error(
                         objectMapper.writeValueAsString(
                                 new OrdsErrorLog(
@@ -451,7 +451,7 @@ public class TransformerService {
                                             "processDocumentsSvc - SavePDFDocument ("
                                                     + folderShortName
                                                     + ")")));
-                    if (response.getBody().getResultCd().equals("0")) {
+                    if (response.getBody().getResponseCd().equals("0")) {
                         // map file name and guid
                         guidMapDocument
                                 .getMappings()
@@ -502,7 +502,7 @@ public class TransformerService {
                                             "Request Success",
                                             "processDocumentsSvc - ProcessCCsXML")));
 
-                    if (!response.getBody().getResultCd().equals("0")) {
+                    if (!response.getBody().getResponseCd().equals("0")) {
                         throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
@@ -539,7 +539,7 @@ public class TransformerService {
                                             "Request Success",
                                             "processDocumentsSvc - ProcessLettersXML")));
 
-                    if (!response.getBody().getResultCd().equals("0")) {
+                    if (!response.getBody().getResponseCd().equals("0")) {
                         throw new ORDSException(response.getBody().getResponseMessageTxt());
                     }
                 } catch (Exception e) {
@@ -579,7 +579,7 @@ public class TransformerService {
             byte[] file = IOUtils.toByteArray(reqPDF);
             reqPDF.close();
 
-            ProcessReportRequest req = new ProcessReportRequest(pdf, processedDate, file);
+            ProcessReportRequest req = new ProcessReportRequest(getFileName(pdf), processedDate, file);
             HttpEntity<ProcessReportRequest> payload = new HttpEntity<>(req, new HttpHeaders());
             try {
                 HttpEntity<ProcessReportResponse> response =
@@ -592,7 +592,7 @@ public class TransformerService {
                         objectMapper.writeValueAsString(
                                 new RequestSuccessLog("Request Success", "processReportSvc")));
 
-                if (!response.getBody().getResultCd().equals("0")) {
+                if (!response.getBody().getResponseCd().equals("0")) {
                     throw new ORDSException(response.getBody().getResponseMessageTxt());
                 }
             } catch (Exception e) {
