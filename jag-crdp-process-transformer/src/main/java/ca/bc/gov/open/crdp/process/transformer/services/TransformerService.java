@@ -77,7 +77,7 @@ public class TransformerService {
     private static String lettersSchemaPath = "xsdSchemas/outgoingLetters.xsd";
     private static String statusSchemaPath = "xsdSchemas/outgoingStatus.xsd";
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public TransformerService(
@@ -607,7 +607,7 @@ public class TransformerService {
                 saveError(
                         e.getMessage(),
                         dateFormat.format(Calendar.getInstance().getTime()),
-                        pdf,
+                        getFileName(pdf),
                         file);
 
                 throw new ORDSException();
