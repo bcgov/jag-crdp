@@ -180,7 +180,7 @@ public class TransformerService {
 
     private void processFile(String filePath) {
         String auditRegex = "(?i)^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
-    String statusRegex = "(?i)^[A-Za-z]{4}O_STATUS.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
+        String statusRegex = "(?i)^[A-Za-z]{4}O_STATUS.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
