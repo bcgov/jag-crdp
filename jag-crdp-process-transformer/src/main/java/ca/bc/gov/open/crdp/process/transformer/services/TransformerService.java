@@ -579,7 +579,8 @@ public class TransformerService {
             byte[] file = IOUtils.toByteArray(reqPDF);
             reqPDF.close();
 
-            ProcessReportRequest req = new ProcessReportRequest(getFileName(pdf), processedDate, file);
+            ProcessReportRequest req =
+                    new ProcessReportRequest(getFileName(pdf), processedDate, file);
             HttpEntity<ProcessReportRequest> payload = new HttpEntity<>(req, new HttpHeaders());
             try {
                 HttpEntity<ProcessReportResponse> response =
