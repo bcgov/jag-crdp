@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SavePDFDocumentResponse implements Serializable {
     private String objectGuid;
-    private String resultCd;
+    private String responseCd;
     private String responseMessageTxt;
 }

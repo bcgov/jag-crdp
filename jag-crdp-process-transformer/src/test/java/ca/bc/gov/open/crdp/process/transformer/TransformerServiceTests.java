@@ -46,7 +46,7 @@ public class TransformerServiceTests {
     @Test
     public void processAuditSvcTest() throws IOException {
         var processAuditResponse = new ProcessAuditResponse();
-        processAuditResponse.setResultCd("0");
+        processAuditResponse.setResponseCd("0");
 
         ResponseEntity<ProcessAuditResponse> responseEntity =
                 new ResponseEntity<>(processAuditResponse, HttpStatus.OK);
@@ -90,7 +90,7 @@ public class TransformerServiceTests {
     @Test
     public void processAuditSvcTestInvalidXml() {
         var processAuditResponse = new ProcessAuditResponse();
-        processAuditResponse.setResultCd("0");
+        processAuditResponse.setResponseCd("0");
         ResponseEntity<ProcessAuditResponse> responseEntity =
                 new ResponseEntity<>(processAuditResponse, HttpStatus.OK);
 
@@ -111,7 +111,7 @@ public class TransformerServiceTests {
     @Test
     public void processStatusSvcTest() throws IOException {
         var processStatusResponse = new ProcessStatusResponse();
-        processStatusResponse.setResultCd("0");
+        processStatusResponse.setResponseCd("0");
 
         ResponseEntity<ProcessStatusResponse> responseEntity =
                 new ResponseEntity<>(processStatusResponse, HttpStatus.OK);
@@ -155,7 +155,7 @@ public class TransformerServiceTests {
     @Test
     public void processStatusSvcTestInvalidXml() {
         var processStatusResponse = new ProcessStatusResponse();
-        processStatusResponse.setResultCd("0");
+        processStatusResponse.setResponseCd("0");
         ResponseEntity<ProcessStatusResponse> responseEntity =
                 new ResponseEntity<>(processStatusResponse, HttpStatus.OK);
 
@@ -191,7 +191,7 @@ public class TransformerServiceTests {
         var savePDFDocumentResponse = new SavePDFDocumentResponse();
         ResponseEntity<SavePDFDocumentResponse> responseEntity1 =
                 new ResponseEntity<>(savePDFDocumentResponse, HttpStatus.OK);
-        responseEntity1.getBody().setResultCd("0");
+        responseEntity1.getBody().setResponseCd("0");
 
         //     Set up to mock ords response
         when(restTemplate.exchange(
@@ -204,7 +204,7 @@ public class TransformerServiceTests {
         var processCCsResponse = new ProcessCCsResponse();
         ResponseEntity<ProcessCCsResponse> responseEntity2 =
                 new ResponseEntity<>(processCCsResponse, HttpStatus.OK);
-        processCCsResponse.setResultCd("0");
+        processCCsResponse.setResponseCd("0");
 
         //     Set up to mock ords response
         when(restTemplate.exchange(
@@ -242,7 +242,7 @@ public class TransformerServiceTests {
         var processReportResponse = new ProcessReportResponse();
         ResponseEntity<ProcessReportResponse> responseEntity =
                 new ResponseEntity<>(processReportResponse, HttpStatus.OK);
-        processReportResponse.setResultCd("0");
+        processReportResponse.setResponseCd("0");
 
         // Set up to mock ords response
         when(restTemplate.exchange(
@@ -282,7 +282,7 @@ public class TransformerServiceTests {
         String fileContentXml = "AA";
 
         SaveErrorResponse resp = new SaveErrorResponse();
-        resp.setResultCd("0");
+        resp.setResponseCd("0");
         resp.setResponseMessageTxt("AA");
         ResponseEntity<SaveErrorResponse> responseEntity =
                 new ResponseEntity<>(resp, HttpStatus.OK);
