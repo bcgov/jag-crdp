@@ -77,7 +77,7 @@ public class TransformerService {
     private static String lettersSchemaPath = "xsdSchemas/outgoingLetters.xsd";
     private static String statusSchemaPath = "xsdSchemas/outgoingStatus.xsd";
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public TransformerService(
@@ -579,7 +579,8 @@ public class TransformerService {
             byte[] file = IOUtils.toByteArray(reqPDF);
             reqPDF.close();
 
-            ProcessReportRequest req = new ProcessReportRequest(getFileName(pdf), processedDate, file);
+            ProcessReportRequest req =
+                    new ProcessReportRequest(getFileName(pdf), processedDate, file);
             HttpEntity<ProcessReportRequest> payload = new HttpEntity<>(req, new HttpHeaders());
             try {
                 HttpEntity<ProcessReportResponse> response =
@@ -607,7 +608,7 @@ public class TransformerService {
                 saveError(
                         e.getMessage(),
                         dateFormat.format(Calendar.getInstance().getTime()),
-                        pdf,
+                        getFileName(pdf),
                         file);
 
                 throw new ORDSException();
