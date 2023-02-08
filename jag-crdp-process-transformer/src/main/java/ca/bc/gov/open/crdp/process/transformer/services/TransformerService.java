@@ -8,6 +8,7 @@ import ca.bc.gov.open.sftp.starter.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -227,13 +228,12 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             ProcessAuditResponse.class);
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "processAuditSvc")));
             if (!resp.getBody().getResponseCd().equals("0")) {
                 throw new ORDSException(resp.getBody().getResponseMessageTxt());
             }
-
+            log.info(
+                    objectMapper.writeValueAsString(
+                            new RequestSuccessLog("Request Success", "processAuditSvc")));
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -273,13 +273,14 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             ProcessStatusResponse.class);
+
+            if (!resp.getBody().getResponseCd().equals("0")) {
+                log.warn("ResponseCd from DB is " + resp.getBody().getResponseCd());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
+            }
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processStatusSvc")));
-
-            if (!resp.getBody().getResponseCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResponseMessageTxt());
-            }
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -485,7 +486,7 @@ public class TransformerService {
             JAXB.marshal(guidMapDocument, sw);
             String xml = sw.toString();
 
-            ProcessXMLRequest req = new ProcessXMLRequest(document, xml);
+            ProcessXMLRequest req = new ProcessXMLRequest(document, Base64.getEncoder().encodeToString(xml.getBytes(StandardCharsets.UTF_8)));
             if (folderShortName.equals("CCs")) {
                 UriComponentsBuilder builder3 =
                         UriComponentsBuilder.fromHttpUrl(host + "doc/processCCs");
@@ -497,15 +498,15 @@ public class TransformerService {
                                     HttpMethod.POST,
                                     payload,
                                     ProcessCCsResponse.class);
+                    if (!response.getBody().getResponseCd().equals("0")) {
+                        log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
+                    }
                     log.info(
                             objectMapper.writeValueAsString(
                                     new RequestSuccessLog(
                                             "Request Success",
                                             "processDocumentsSvc - ProcessCCsXML")));
-
-                    if (!response.getBody().getResponseCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResponseMessageTxt());
-                    }
                 } catch (Exception e) {
                     log.error(
                             objectMapper.writeValueAsString(
@@ -520,7 +521,6 @@ public class TransformerService {
                             dateFormat.format(Calendar.getInstance().getTime()),
                             fileName,
                             document);
-
                     throw new ORDSException();
                 }
             } else if (folderShortName.equals("Letters")) {
@@ -534,15 +534,15 @@ public class TransformerService {
                                     HttpMethod.POST,
                                     payload,
                                     ProcessLettersResponse.class);
+                    if (!response.getBody().getResponseCd().equals("0")) {
+                        log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
+                    }
                     log.info(
                             objectMapper.writeValueAsString(
                                     new RequestSuccessLog(
                                             "Request Success",
                                             "processDocumentsSvc - ProcessLettersXML")));
-
-                    if (!response.getBody().getResponseCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResponseMessageTxt());
-                    }
                 } catch (Exception e) {
                     log.error(
                             objectMapper.writeValueAsString(
@@ -551,6 +551,11 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessLettersXML",
                                             e.getMessage(),
                                             req)));
+                    saveError(
+                            e.getMessage(),
+                            dateFormat.format(Calendar.getInstance().getTime()),
+                            fileName,
+                            document);
                     throw new ORDSException();
                 }
             } else {
@@ -590,13 +595,13 @@ public class TransformerService {
                                 HttpMethod.POST,
                                 payload,
                                 ProcessReportResponse.class);
+                if (!response.getBody().getResponseCd().equals("0")) {
+                    log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                    throw new ORDSException(response.getBody().getResponseMessageTxt());
+                }
                 log.info(
                         objectMapper.writeValueAsString(
                                 new RequestSuccessLog("Request Success", "processReportSvc")));
-
-                if (!response.getBody().getResponseCd().equals("0")) {
-                    throw new ORDSException(response.getBody().getResponseMessageTxt());
-                }
             } catch (Exception e) {
                 log.error(
                         objectMapper.writeValueAsString(
