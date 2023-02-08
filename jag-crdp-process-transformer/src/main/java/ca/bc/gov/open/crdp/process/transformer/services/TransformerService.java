@@ -486,7 +486,11 @@ public class TransformerService {
             JAXB.marshal(guidMapDocument, sw);
             String xml = sw.toString();
 
-            ProcessXMLRequest req = new ProcessXMLRequest(document, Base64.getEncoder().encodeToString(xml.getBytes(StandardCharsets.UTF_8)));
+            ProcessXMLRequest req =
+                    new ProcessXMLRequest(
+                            document,
+                            Base64.getEncoder()
+                                    .encodeToString(xml.getBytes(StandardCharsets.UTF_8)));
             if (folderShortName.equals("CCs")) {
                 UriComponentsBuilder builder3 =
                         UriComponentsBuilder.fromHttpUrl(host + "doc/processCCs");
