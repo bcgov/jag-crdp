@@ -20,6 +20,8 @@ public interface FileService {
 
     void makeFolder(String folderPath);
 
+    void makeFolder(String folderPath, Integer permission);
+
     boolean exists(String filePath);
 
     boolean isDirectory(String filePath);

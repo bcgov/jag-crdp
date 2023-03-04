@@ -4,6 +4,8 @@ security:
     username: ${BASIC_AUTH_USER}
 crdp:
   host: ${ORDS_HOST}
+  username: ${ORDS_USERNAME}
+  password: ${ORDS_PASSWORD}
   cron-job-outgoing-file:  ${CRON_JOB_OUTGOING_FILE}
   rabbitmq:
     receiver-queue: ${RECEIVER_QUEUE_NAME}

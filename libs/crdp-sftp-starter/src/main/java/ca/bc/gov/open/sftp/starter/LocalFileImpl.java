@@ -18,18 +18,18 @@ public class LocalFileImpl implements FileService {
     /**
      * Get file content in byte array
      *
-     * @param filename
+     * @param fileName
      */
     @Override
-    public ByteArrayInputStream getContent(String filename) {
-        File file = new File(filename);
-        ByteArrayInputStream result = null;
+    public ByteArrayInputStream getContent(String fileName) {
+        ByteArrayInputStream targetStream = null;
+        File file = new File(fileName);
         try {
-            result = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
+            targetStream = new ByteArrayInputStream(FileUtils.readFileToByteArray(file));
+        } catch (Exception e) {
+            logger.error("Failed to get " + fileName + ": " + e.getMessage());
         }
-        return result;
+        return targetStream;
     }
 
     /**
@@ -127,6 +127,27 @@ public class LocalFileImpl implements FileService {
         try {
             FileUtils.forceMkdir(target);
         } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Create a folder with permission setup
+     *
+     * @param folderPath
+     * @param permission
+     */
+    @Override
+    public void makeFolder(String folderPath, Integer permission) {
+        makeFolder(folderPath);
+        File target = new File(folderPath);
+        try {
+            // Windows permissions are set to 777 by default
+            // Note that this API will need upgrade
+            target.setReadable(true);
+            target.setWritable(true);
+            target.setExecutable(true);
+        } catch (Exception e) {
             logger.error(e.getMessage());
         }
     }

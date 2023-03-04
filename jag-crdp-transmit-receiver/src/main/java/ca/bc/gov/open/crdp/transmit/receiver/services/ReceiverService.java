@@ -9,6 +9,7 @@ import ca.bc.gov.open.crdp.transmit.receiver.configuration.QueueConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +36,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
-import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
-import org.springframework.ws.server.endpoint.annotation.ResponsePayload;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -76,10 +75,12 @@ public class ReceiverService {
         partOneIds = new ArrayList<>();
         regModFileIds = new ArrayList<>();
         partTwoIds = new ArrayList<>();
+
+        // create empty queue
+        this.rabbitTemplate.convertAndSend(
+                queueConfig.getTopicExchangeName(), queueConfig.getReceiverRoutingkey());
     }
 
-    @PayloadRoot(localPart = "generateIncomingRequestFile")
-    @ResponsePayload
     @Scheduled(cron = "${crdp.cron-job-outgoing-file}")
     public int GenerateIncomingRequestFile() throws IOException {
         partOneIds.clear();
@@ -97,11 +98,14 @@ public class ReceiverService {
                             HttpMethod.GET,
                             new HttpEntity<>(new HttpHeaders()),
                             GenerateIncomingReqFileResponse.class);
+            if (reqFileResp.getBody().getResponseCd() != null
+                    && reqFileResp.getBody().getResponseCd().equals("1")) {
+                throw new ORDSException(reqFileResp.getBody().getResponseMessageTxt());
+            }
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog(
                                     "Request Success", "generateIncomingRequestFile")));
-
         } catch (Exception ex) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -111,6 +115,12 @@ public class ReceiverService {
                                     ex.getMessage(),
                                     null)));
             return -1;
+        }
+
+        if (reqFileResp.getBody().getPartOneCount() + reqFileResp.getBody().getPartTwoCount()
+                == 0) {
+            log.info("Total count = 0, no xml file will be created");
+            return 0;
         }
 
         String xmlString = xmlBuilder(reqFileResp.getBody());
@@ -125,7 +135,7 @@ public class ReceiverService {
                 new HttpEntity<>(
                         new SaveDataExchangeFileRequest(
                                 reqFileResp.getBody().getFileName(),
-                                xmlString,
+                                xmlString.getBytes(StandardCharsets.UTF_8),
                                 reqFileResp.getBody().getDataExchangeFileSeqNo()),
                         new HttpHeaders());
 
@@ -137,7 +147,8 @@ public class ReceiverService {
                             HttpMethod.POST,
                             payload,
                             new ParameterizedTypeReference<>() {});
-            if (saveFileResp.getBody().get("responseCd").equals("0")) {
+            if (saveFileResp.getBody().get("responseCd") != null
+                    && saveFileResp.getBody().get("responseCd").equals("1")) {
                 throw new ORDSException(saveFileResp.getBody().get("responseMessageTxt"));
             }
             log.info(

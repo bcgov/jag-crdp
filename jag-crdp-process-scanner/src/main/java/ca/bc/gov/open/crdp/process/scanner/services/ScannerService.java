@@ -6,7 +6,6 @@ import ca.bc.gov.open.crdp.process.scanner.configuration.QueueConfig;
 import ca.bc.gov.open.sftp.starter.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -31,14 +30,16 @@ public class ScannerService {
     @Value("${crdp.in-file-dir}")
     private String inFileDir = "/";
 
-    @Value("${crdp.in-progress-dir}")
-    private String inProgressDir = "/";
+    @Value("${crdp.progressing-dir}")
+    private String processingDir = "/";
 
     @Value("${crdp.record-ttl-hour}")
     private int recordTTLHour = 24;
 
     @Value("${crdp.sftp-enabled}")
     private String sftpEnabled = "true";
+
+    private Integer PERMISSIONS_DECIMAL = 493;
 
     @Autowired JschSessionProvider jschSessionProvider;
     private FileService fileService;
@@ -55,8 +56,8 @@ public class ScannerService {
     private static String
             processFolderName; // current "Processed_yyyy_nn" folder name (not full path).
 
-    private static TreeMap<String, String> inProgressFilesToMove = new TreeMap<String, String>();
-    private static TreeMap<String, String> inProgressFoldersToMove =
+    private static TreeMap<String, String> processingFilesToMove = new TreeMap<String, String>();
+    private static TreeMap<String, String> processingFoldersToMove =
             new TreeMap<String, String>(); // completed files.
 
     LocalDateTime scanDateTime;
@@ -70,7 +71,8 @@ public class ScannerService {
             RestTemplate restTemplate,
             ObjectMapper objectMapper,
             RabbitTemplate rabbitTemplate,
-            SftpProperties sftpProperties) {
+            SftpProperties sftpProperties,
+            FileService fileService) {
         this.scannerQueue = scannerQueue;
         this.amqpAdmin = amqpAdmin;
         this.queueConfig = queueConfig;
@@ -78,6 +80,10 @@ public class ScannerService {
         this.objectMapper = objectMapper;
         this.rabbitTemplate = rabbitTemplate;
         this.sftpProperties = sftpProperties;
+        this.fileService = fileService;
+        // create empty queue
+        this.rabbitTemplate.convertAndSend(
+                queueConfig.getTopicExchangeName(), queueConfig.getScannerRoutingkey());
     }
 
     /** The primary method for the Java service to scan CRDP directory */
@@ -89,46 +95,61 @@ public class ScannerService {
                         : new LocalFileImpl();
 
         // re-initialize arrays
-        inProgressFilesToMove = new TreeMap<String, String>();
-        inProgressFoldersToMove = new TreeMap<String, String>();
+        processingFilesToMove = new TreeMap<String, String>();
+        processingFoldersToMove = new TreeMap<String, String>();
 
         scanDateTime = LocalDateTime.now();
 
+        log.info(
+                "inFileDir:"
+                        + inFileDir
+                        + " exists:"
+                        + fileService.exists(inFileDir)
+                        + " isDirectory:"
+                        + fileService.isDirectory(inFileDir));
         if (fileService.exists(inFileDir) && fileService.isDirectory(inFileDir)) {
-            // create inProgress folder
-            if (!fileService.exists(inProgressDir)) {
-                fileService.makeFolder(inProgressDir);
+            // Create Processing folder
+            if (!fileService.exists(processingDir)) {
+                log.info("Making Processing Dir:" + processingDir);
+                // 493 -> 111 101 101 -> 755
+                fileService.makeFolder(processingDir, PERMISSIONS_DECIMAL);
             }
-
+            for (String f : fileService.listFiles(inFileDir)) {
+                log.info("listing inFileDir Files:" + f);
+            }
             String[] arr = fileService.listFiles(inFileDir).toArray(new String[0]);
 
             // Calling recursive method
             try {
                 recursiveScan(arr, 0, 0);
             } catch (Exception ex) {
-                ex.printStackTrace();
+                log.error(ex.getMessage());
             }
 
-            if (inProgressFilesToMove.isEmpty() && inProgressFoldersToMove.isEmpty()) {
+            if (processingFilesToMove.isEmpty() && processingFoldersToMove.isEmpty()) {
                 log.info("No file/fold found, closing current scan session: " + scanDateTime);
                 return;
             }
 
-            // create inProgress folder
-            fileService.makeFolder(inProgressDir + customFormatter.format(scanDateTime));
+            // Create Processing/Datetime folder
+            // 493 -> 111 101 101 -> 755
+            fileService.makeFolder(
+                    processingDir + "/" + customFormatter.format(scanDateTime),
+                    PERMISSIONS_DECIMAL);
 
             try {
-                // move files into in-progress folder
-                for (Entry<String, String> m : inProgressFilesToMove.entrySet()) {
+                // Move files into processing folder
+                for (Entry<String, String> m : processingFilesToMove.entrySet()) {
+                    log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
 
-                for (Entry<String, String> m : inProgressFoldersToMove.entrySet()) {
+                for (Entry<String, String> m : processingFoldersToMove.entrySet()) {
+                    log.info("Moving " + m.getKey() + " to " + m.getValue());
                     fileService.moveFile(m.getKey(), m.getValue());
                     enQueue(new ScannerPub(m.getValue(), customFormatter.format(scanDateTime)));
                 }
-                cleanUp(inFileDir);
                 log.info("Scan Complete");
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -136,17 +157,25 @@ public class ScannerService {
         } else {
             log.error("Incoming file directory \"" + inFileDir + "\" does not exist");
         }
+
+        // Clean up IN directory
+        cleanUp(inFileDir);
     }
 
     private void cleanUp(String headFolderPath) {
-        // delete processed folders (delivered from Ottawa).
         for (var folder : fileService.listFiles(headFolderPath)) {
-            if (!fileService.isDirectory(folder) || getFileName(folder).equals("inProgress")) {
+            if (!fileService.isDirectory(folder)
+                    || getFileName(folder).equals("Processing")
+                    || (getFileName(folder).startsWith("."))) {
                 continue;
             }
 
+            // delete old Errors and Completed subfolders
             if (getFileName(folder).equals("Errors") || getFileName(folder).equals("Completed")) {
                 for (var f : fileService.listFiles(folder)) {
+                    if (getFileName(f).startsWith(".")) {
+                        continue;
+                    }
                     if (new Date().getTime() - fileService.lastModify(f)
                             > recordTTLHour * 60 * 60 * 1000) {
                         fileService.removeFolder(f);
@@ -154,19 +183,33 @@ public class ScannerService {
                 }
                 continue;
             }
-            fileService.removeFolder(folder);
+
+            // delete processed folders (delivered from Ottawa).
+            for (String f : fileService.listFiles(folder)) {
+                if (!getFileName(f).startsWith(".")
+                        && fileService.isDirectory(f)
+                        && fileService.listFiles(f).size() <= 2) {
+                    log.info("Deleting... " + f);
+                    fileService.removeFolder(f);
+                }
+            }
+            if (fileService.listFiles(folder).size() <= 2) {
+                log.info("Deleting... " + folder);
+                fileService.removeFolder(folder);
+            }
         }
     }
 
-    private void recursiveScan(String[] arr, int index, int level) throws IOException {
+    private void recursiveScan(String[] arr, int index, int level) {
         // terminate condition
         if (index == arr.length) return;
         try {
             // for root folder files (Audit and Status).
             if (!fileService.isDirectory(arr[index])) {
-                inProgressFilesToMove.put(
+                processingFilesToMove.put(
                         arr[index],
-                        inProgressDir
+                        processingDir
+                                + "/"
                                 + customFormatter.format(scanDateTime)
                                 + "/"
                                 + Paths.get(arr[index]).getFileName().toString());
@@ -185,9 +228,10 @@ public class ScannerService {
                             || "Letters".equals(getFileName(arr[index]))
                             || "R-Lists".equals(getFileName(arr[index]))
                             || "JUS178s".equals(getFileName(arr[index]))) {
-                        inProgressFoldersToMove.put(
+                        processingFoldersToMove.put(
                                 arr[index],
-                                inProgressDir
+                                processingDir
+                                        + "/"
                                         + customFormatter.format(scanDateTime)
                                         + "/"
                                         + processFolderName

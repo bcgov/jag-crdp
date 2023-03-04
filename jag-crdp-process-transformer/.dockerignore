@@ -3,3 +3,4 @@
 
 # Allow files and directories
 !./target/jag-crdp-process-transformer.jar
+!./src/main/resources/xsdSchemas/*

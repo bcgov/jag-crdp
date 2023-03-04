@@ -59,7 +59,7 @@ public class ReceiverServiceTests {
         var generateIncomingReqFileResponse = new GenerateIncomingReqFileResponse();
 
         generateIncomingReqFileResponse.setFileName("unittest.xml");
-        generateIncomingReqFileResponse.setStatus("1");
+        generateIncomingReqFileResponse.setResponseCd("A");
         generateIncomingReqFileResponse.setDataExchangeFileSeqNo("A");
         generateIncomingReqFileResponse.setPartOneCount(1);
         generateIncomingReqFileResponse.setPartTwoCount(1);
@@ -159,8 +159,10 @@ public class ReceiverServiceTests {
         PartOneData partOneData = new PartOneData();
         partOneDataList.add(partOneData);
         generateIncomingReqFileResponse.setPartOneData(partOneDataList);
-        generateIncomingReqFileResponse.setErrMsg("A");
-        generateIncomingReqFileResponse.setStatus("A");
+        generateIncomingReqFileResponse.setResponseCd("A");
+        generateIncomingReqFileResponse.setResponseMessageTxt("A");
+        generateIncomingReqFileResponse.setPartOneCount(1);
+        generateIncomingReqFileResponse.setPartTwoCount(2);
 
         ResponseEntity<GenerateIncomingReqFileResponse> responseEntity =
                 new ResponseEntity<>(generateIncomingReqFileResponse, HttpStatus.OK);
@@ -181,9 +183,11 @@ public class ReceiverServiceTests {
     @Test
     public void generateIncomingRequestFileFail3() throws IOException {
         var generateIncomingReqFileResponse = new GenerateIncomingReqFileResponse();
+        generateIncomingReqFileResponse.setPartOneCount(1);
+        generateIncomingReqFileResponse.setPartTwoCount(2);
 
         generateIncomingReqFileResponse.setFileName("unittest.xml");
-        generateIncomingReqFileResponse.setStatus("1");
+        generateIncomingReqFileResponse.setResponseCd("0");
 
         ResponseEntity<GenerateIncomingReqFileResponse> responseEntity =
                 new ResponseEntity<>(generateIncomingReqFileResponse, HttpStatus.OK);

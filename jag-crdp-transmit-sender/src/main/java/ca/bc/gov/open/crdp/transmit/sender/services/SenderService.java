@@ -12,7 +12,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -57,7 +58,8 @@ public class SenderService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "update-sent");
 
         UpdateTransmissionSentRequest req = new UpdateTransmissionSentRequest();
-        req.setCurrentDate(LocalDate.now().toString());
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        req.setCurrentDate(LocalDateTime.now().format(format));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
@@ -74,15 +76,13 @@ public class SenderService {
                             HttpMethod.POST,
                             payload,
                             new ParameterizedTypeReference<>() {});
-
-            if (resp.getBody().get("responseCd").equals("0")) {
+            if (resp.getBody().get("responseCd") != null
+                    && resp.getBody().get("responseCd").equals("1")) {
                 throw new ORDSException(resp.getBody().get("responseMessageTxt"));
             }
-
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "updateTransmissionSent")));
-
             return 0;
         } catch (Exception ex) {
             log.error(
@@ -103,7 +103,7 @@ public class SenderService {
             FileUtils.writeStringToFile(
                     f, xmlPub.getXmlString(), String.valueOf(StandardCharsets.UTF_8));
             // SCP the file to a server
-            sftpTransfer(outFileDir + xmlPub.getFileName(), f);
+            sftpTransfer(outFileDir + "/" + xmlPub.getFileName(), f);
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "sendXmlFile")));

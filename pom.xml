@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.14</version>
+        <version>2.7.9</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ca.bc.gov.open</groupId>
@@ -29,20 +29,27 @@
         <snakeyaml.version>1.33</snakeyaml.version>
     </properties>
 
-    <modules>
-        <module>libs/crdp-starters-bom</module>
-        <module>libs/crdp-sftp-starter</module>
-        <module>jag-crdp-process-scanner</module>
-        <module>jag-crdp-process-transformer</module>
-        <module>jag-crdp-process-models</module>
-        <module>jag-crdp-transmit-receiver</module>
-        <module>jag-crdp-transmit-sender</module>
-        <module>jag-crdp-transmit-models</module>
-        <module>jag-crdp-common-models</module>
-        <module>crdp-code-coverage</module>
-    </modules>
-
     <profiles>
+        <profile>
+            <id>all</id>
+            <modules>
+                <module>libs/crdp-starters-bom</module>
+                <module>libs/crdp-sftp-starter</module>
+                <module>jag-crdp-common-models</module>
+                <module>jag-crdp-transmit-models</module>
+                <module>jag-crdp-transmit-receiver</module>
+                <module>jag-crdp-transmit-sender</module>
+                <module>jag-crdp-process-models</module>
+                <module>jag-crdp-process-scanner</module>
+                <module>jag-crdp-process-transformer</module>
+                <module>crdp-code-coverage</module>
+            </modules>
+            <activation>
+                <activeByDefault>
+                    true
+                </activeByDefault>
+            </activation>
+        </profile>
         <profile>
             <id>libs</id>
             <modules>
@@ -96,6 +103,7 @@
             <id>process-scanner</id>
             <modules>
                 <module>libs/crdp-starters-bom</module>
+                <module>libs/crdp-sftp-starter</module>
                 <module>jag-crdp-process-scanner</module>
                 <module>jag-crdp-process-models</module>
                 <module>jag-crdp-common-models</module>
@@ -105,6 +113,7 @@
             <id>process-transformer</id>
             <modules>
                 <module>libs/crdp-starters-bom</module>
+                <module>libs/crdp-sftp-starter</module>
                 <module>jag-crdp-process-transformer</module>
                 <module>jag-crdp-process-models</module>
                 <module>jag-crdp-common-models</module>

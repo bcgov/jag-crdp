@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GenerateIncomingReqFileResponse implements Serializable {
-    private String status;
-    private String errMsg;
+    private String responseCd;
+    private String responseMessageTxt;
 
     private Integer partOneCount;
     private Integer partTwoCount;

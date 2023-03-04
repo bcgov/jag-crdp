@@ -15,15 +15,16 @@ import org.mockito.MockitoAnnotations;
 public class SftpServiceImplListFileTest {
 
     private static final String CASE_2 = "case2";
-    private static final String CASE_3 = "case2";
+    private static final String CASE_3 = "case3";
     private static final String CASE_1 = "case1";
 
-    private static final String FILENAME_1 = "test\\filename1";
-    private static final String FILENAME_2 = "test\\filename2";
-    private static final String FILENAME_3 = "test\\filename3";
+    private static final String FILENAME_1 = "filename1";
+    private static final String FILENAME_2 = "filename2";
+    private static final String FILENAME_3 = "filename3";
 
     private static final String REMOTE = "remote";
     private static final String TEST_WINDOWS = "test\\windows";
+    private static final String TEST_WINDOWS_IN_UNIX = "test/windows";
 
     @Mock private JschSessionProvider jschSessionProviderMock;
 
@@ -80,8 +81,8 @@ public class SftpServiceImplListFileTest {
         List<String> actual = sut.listFiles(CASE_1);
 
         Assertions.assertEquals(2, actual.size());
-        Assertions.assertTrue(actual.contains(FILENAME_1));
-        Assertions.assertTrue(actual.contains(FILENAME_2));
+        Assertions.assertTrue(actual.contains(CASE_1 + "/" + FILENAME_1));
+        Assertions.assertTrue(actual.contains(CASE_1 + "/" + FILENAME_2));
     }
 
     @Test
@@ -93,8 +94,8 @@ public class SftpServiceImplListFileTest {
         List<String> actual = sut.listFiles(CASE_2);
 
         Assertions.assertEquals(3, actual.size());
-        Assertions.assertTrue(actual.contains(FILENAME_1));
-        Assertions.assertTrue(actual.contains(FILENAME_2));
+        Assertions.assertTrue(actual.contains(REMOTE + "/" + CASE_2 + "/" + FILENAME_1));
+        Assertions.assertTrue(actual.contains(REMOTE + "/" + CASE_2 + "/" + FILENAME_2));
     }
 
     @Test
@@ -107,7 +108,9 @@ public class SftpServiceImplListFileTest {
         List<String> actual = sut.listFiles(CASE_3);
 
         Assertions.assertEquals(3, actual.size());
-        Assertions.assertTrue(actual.contains(FILENAME_1));
-        Assertions.assertTrue(actual.contains(FILENAME_2));
+        Assertions.assertTrue(
+                actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_1));
+        Assertions.assertTrue(
+                actual.contains(TEST_WINDOWS_IN_UNIX + "/" + CASE_3 + "/" + FILENAME_2));
     }
 }

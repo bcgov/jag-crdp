@@ -7,10 +7,7 @@ import ca.bc.gov.open.crdp.process.models.*;
 import ca.bc.gov.open.sftp.starter.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.io.StringWriter;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -25,6 +22,7 @@ import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -42,8 +40,8 @@ public class TransformerService {
     @Value("${crdp.host}")
     private String host = "https://127.0.0.1/";
 
-    @Value("${crdp.in-progress-dir}")
-    private String inProgressDir = "/";
+    @Value("${crdp.processing-dir}")
+    private String processingDir = "/";
 
     @Value("${crdp.completed-dir}")
     private String completedDir = "/";
@@ -53,6 +51,8 @@ public class TransformerService {
 
     @Value("${crdp.sftp-enabled}")
     private String sftpEnabled = "true";
+
+    private Integer PERMISSIONS_DECIMAL = 493;
 
     private String timestamp = null;
 
@@ -73,23 +73,23 @@ public class TransformerService {
     private static TreeMap<String, String> erredFoldersToMove =
             new TreeMap<String, String>(); // erred folders.
 
-    private static String auditSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingAudit.xsd";
-    private static String ccSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingCCs.xsd";
-    private static String lettersSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingLetters.xsd";
-    private static String statusSchemaPath =
-            "jag-crdp-process-transformer/src/main/resources/xsdSchemas/outgoingStatus.xsd";
+    private static String auditSchemaPath = "xsdSchemas/outgoingAudit.xsd";
+    private static String ccSchemaPath = "xsdSchemas/outgoingCCs.xsd";
+    private static String lettersSchemaPath = "xsdSchemas/outgoingLetters.xsd";
+    private static String statusSchemaPath = "xsdSchemas/outgoingStatus.xsd";
 
-    DateFormat dateFormat = new SimpleDateFormat("yyyy-mm-dd");
+    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     @Autowired
     public TransformerService(
-            RestTemplate restTemplate, ObjectMapper objectMapper, SftpProperties sftpProperties) {
+            RestTemplate restTemplate,
+            ObjectMapper objectMapper,
+            SftpProperties sftpProperties,
+            FileService fileService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.sftpProperties = sftpProperties;
+        this.fileService = fileService;
     }
 
     public void processFileService(ScannerPub pub) {
@@ -106,15 +106,15 @@ public class TransformerService {
 
         this.timestamp = pub.getDateTime();
 
-        if (fileService.exists(inProgressDir) && fileService.isDirectory(inProgressDir)) {
+        if (fileService.exists(processingDir) && fileService.isDirectory(processingDir)) {
             // create Completed folder
             if (!fileService.exists(completedDir)) {
-                fileService.makeFolder(completedDir);
+                fileService.makeFolder(completedDir, PERMISSIONS_DECIMAL);
             }
 
             // create Errors folder
             if (!fileService.exists(errorsDir)) {
-                fileService.makeFolder(errorsDir);
+                fileService.makeFolder(errorsDir, PERMISSIONS_DECIMAL);
             }
 
             if (!fileService.isDirectory(pub.getFilePath())) {
@@ -127,8 +127,10 @@ public class TransformerService {
 
             try {
                 // create completed folder with last scanning timestamp
-                if (!completedFilesToMove.isEmpty() || !completedFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(completedDir + timestamp);
+                if (!completedFilesToMove.isEmpty()
+                        || !completedFoldersToMove.isEmpty()
+                                && !fileService.exists(completedDir + "/" + timestamp)) {
+                    fileService.makeFolder(completedDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -138,8 +140,11 @@ public class TransformerService {
                 }
 
                 // create errors folder with last scanning timestamp
-                if (!erredFilesToMove.isEmpty() || !erredFoldersToMove.isEmpty()) {
-                    fileService.makeFolder(errorsDir + timestamp);
+                if (!erredFilesToMove.isEmpty()
+                        || !erredFoldersToMove.isEmpty()
+                                && !fileService.exists(errorsDir + "/" + timestamp)) {
+                    log.info("making " + errorsDir + "/" + timestamp);
+                    fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : erredFilesToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
@@ -147,60 +152,69 @@ public class TransformerService {
                 for (Map.Entry<String, String> m : erredFoldersToMove.entrySet()) {
                     fileService.moveFile(m.getKey(), m.getValue());
                 }
-                cleanUp(inProgressDir);
+                cleanUp(processingDir);
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
         } else {
-            log.error("InProgress directory \"" + inProgressDir + "\" does not exist");
+            log.error("Processing directory \"" + processingDir + "\" does not exist");
         }
     }
 
-    private void cleanUp(String inProgressDir) {
-        for (String folder : fileService.listFiles(inProgressDir)) {
-            if (fileService.listFiles(folder).size() == 0) {
-                fileService.removeFolder(folder);
+    private void cleanUp(String processingDir) {
+        for (String folder : fileService.listFiles(processingDir)) {
+            if (getFileName(folder).startsWith(".")) {
                 continue;
             }
             for (String f : fileService.listFiles(folder)) {
-                if (fileService.isDirectory(f) && fileService.listFiles(f).size() == 0) {
+                if (!getFileName(f).startsWith(".")
+                        && fileService.isDirectory(f)
+                        && fileService.listFiles(f).size() <= 2) {
                     fileService.removeFolder(f);
                 }
+            }
+            if (fileService.listFiles(folder).size() <= 2) {
+                fileService.removeFolder(folder);
             }
         }
     }
 
     private void processFile(String filePath) {
-        String auditRegex = "^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
-        String statusRegex = "^[A-Za-z]{4}O_Status.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
-
+        String auditRegex = "(?i)^[A-Za-z]{4}O_Audit.\\d{6}.XML"; // ^[A-Z]{4}O_Audit.\d{6}.XML
+        String statusRegex = "(?i)^[A-Za-z]{4}O_STATUS.\\d{6}.XML"; // ^[A-Z]{4}O_Status.\d{6}.XML
         try {
             if (Pattern.matches(auditRegex, getFileName(filePath))) {
                 processAuditSvc(filePath);
-
             } else if (Pattern.matches(statusRegex, getFileName(filePath))) {
                 processStatusSvc(filePath);
+            } else {
+                throw new IOException("Unexpected file: " + getFileName(filePath));
             }
 
             // Move file to 'completed' folder on success (status or audit only)
             completedFilesToMove.put(
-                    filePath, completedDir + timestamp + "/" + getFileName(filePath));
+                    filePath, completedDir + "/" + timestamp + "/" + getFileName(filePath));
 
         } catch (Exception e) {
-            erredFilesToMove.put(filePath, errorsDir + timestamp + "/" + getFileName(filePath));
+            erredFilesToMove.put(
+                    filePath, errorsDir + "/" + timestamp + "/" + getFileName(filePath));
         }
     }
 
     public void processAuditSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
-        File xmlFile = new File(fileName);
-        if (!validateXml(auditSchemaPath, new File(fileName))) {
-            throw new IOException("XML file schema validation failed. fileName : " + xmlFile);
+        File schema = new File(auditSchemaPath);
+
+        if (!validateXml(auditSchemaPath, fileName)) {
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
 
+        log.info("validation completed");
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-audit");
 
-        byte[] file = readFile(xmlFile);
+        InputStream xmlFile = fileService.getContent(fileName);
+        byte[] file = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         ProcessAuditRequest req = new ProcessAuditRequest(shortFileName, file);
         // Send ORDS request
@@ -214,13 +228,12 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             ProcessAuditResponse.class);
+            if (!resp.getBody().getResponseCd().equals("0")) {
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
+            }
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processAuditSvc")));
-            if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResponseMessageTxt());
-            }
-
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -241,13 +254,14 @@ public class TransformerService {
 
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
-        File xmlFile = new File(fileName);
-        if (!validateXml(statusSchemaPath, xmlFile)) {
-            throw new IOException("XML file schema validation failed. fileName : " + xmlFile);
+        if (!validateXml(statusSchemaPath, fileName)) {
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
 
-        byte[] file = readFile(xmlFile);
+        InputStream xmlFile = fileService.getContent(fileName);
+        byte[] file = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         ProcessStatusRequest req = new ProcessStatusRequest(shortFileName, file);
         HttpEntity<ProcessStatusRequest> payload = new HttpEntity<>(req, new HttpHeaders());
@@ -259,13 +273,14 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             ProcessStatusResponse.class);
+
+            if (!resp.getBody().getResponseCd().equals("0")) {
+                log.warn("ResponseCd from DB is " + resp.getBody().getResponseCd());
+                throw new ORDSException(resp.getBody().getResponseMessageTxt());
+            }
             log.info(
                     objectMapper.writeValueAsString(
                             new RequestSuccessLog("Request Success", "processStatusSvc")));
-
-            if (!resp.getBody().getResultCd().equals("0")) {
-                throw new ORDSException(resp.getBody().getResponseMessageTxt());
-            }
         } catch (Exception e) {
             log.error(
                     objectMapper.writeValueAsString(
@@ -297,10 +312,7 @@ public class TransformerService {
                             HttpMethod.POST,
                             payload,
                             SaveErrorResponse.class);
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "SaveError")));
-            if (!response.getBody().getResultCd().equals("0")) {
+            if (!response.getBody().getResponseCd().equals("0")) {
                 log.error(
                         objectMapper.writeValueAsString(
                                 new OrdsErrorLog(
@@ -308,6 +320,10 @@ public class TransformerService {
                                         "SaveError",
                                         response.getBody().getResponseMessageTxt(),
                                         req)));
+            } else {
+                log.info(
+                        objectMapper.writeValueAsString(
+                                new RequestSuccessLog("Request Success", "SaveError")));
             }
         } catch (Exception e) {
             log.error(
@@ -315,23 +331,6 @@ public class TransformerService {
                             new OrdsErrorLog(
                                     "Error received from ORDS", "SaveError", e.getMessage(), req)));
             throw new ORDSException();
-        }
-    }
-
-    static byte[] readFile(File file) throws IOException {
-        // Open file
-        RandomAccessFile f = new RandomAccessFile(file, "r");
-        try {
-            // Get and check length
-            long longLength = f.length();
-            int length = (int) longLength;
-            if (length != longLength) throw new IOException("File size >= 2 GB");
-            // Read file and return data
-            byte[] data = new byte[length];
-            f.readFully(data);
-            return data;
-        } finally {
-            f.close();
         }
     }
 
@@ -361,48 +360,41 @@ public class TransformerService {
             // Add the processed folder and its target location to the processedFolders map
             // dealt with at the end of processing.
             completedFoldersToMove.put(
-                    folderPath, completedDir + timestamp + "/" + getFileName(folderPath));
+                    folderPath, completedDir + "/" + timestamp + "/" + getFileName(folderPath));
 
         } catch (Exception e) {
             // Add the erred folder path and its target location to the erred folders map
             // dealt with at the end of processing.
             erredFoldersToMove.put(
-                    folderPath, errorsDir + timestamp + "/" + getFileName(folderPath));
+                    folderPath, errorsDir + "/" + timestamp + "/" + getFileName(folderPath));
         }
     }
 
     public void processDocumentsSvc(String folderName, String folderShortName, String processedDate)
             throws IOException {
-        String[] fileList;
-
-        // Creates a new File instance by converting the given pathname string
-        // into an abstract pathname
-        File f = new File(folderName);
-
         // Populates the array with names of files and directories
-        fileList = f.list();
+        List<String> fileList = fileService.listFiles(folderName);
         String fileName = "";
         boolean isValid = false;
-        File xmlFile = null;
+        InputStream xmlFile = null;
         if (folderShortName.equals("CCs")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_CCs.XML");
-            xmlFile = new File(folderName + "/" + fileName);
-            isValid = validateXml(ccSchemaPath, xmlFile);
+            xmlFile = fileService.getContent(fileName);
+            isValid = validateXml(ccSchemaPath, fileName);
         } else if (folderShortName.equals("Letters")) {
             fileName = extractXMLFileName(fileList, "^[A-Z]{4}O_Letters.XML");
-            xmlFile = new File(folderName + "/" + fileName);
-            isValid = validateXml(lettersSchemaPath, xmlFile);
+            xmlFile = fileService.getContent(fileName);
+            isValid = validateXml(lettersSchemaPath, fileName);
         } else {
-            log.error("Unexpected folder short name: " + folderShortName);
-            return;
+            throw new IOException("Unexpected folder short name: " + folderShortName);
         }
 
         if (!isValid) {
-            throw new IOException(
-                    "XML file schema validation failed. fileName : " + folderName + fileName);
+            throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
 
-        byte[] document = readFile(xmlFile);
+        byte[] document = IOUtils.toByteArray(xmlFile);
+        xmlFile.close();
 
         UriComponentsBuilder builder =
                 UriComponentsBuilder.fromHttpUrl(host + "doc/status")
@@ -441,7 +433,10 @@ public class TransformerService {
             List<String> pdfs = extractPDFFileNames(folderName);
             UriComponentsBuilder builder2 = UriComponentsBuilder.fromHttpUrl(host + "doc/save");
             for (String pdf : pdfs) {
-                SavePDFDocumentRequest req = new SavePDFDocumentRequest(readFile(new File(pdf)));
+                InputStream pdfStream = fileService.getContent(pdf);
+                SavePDFDocumentRequest req =
+                        new SavePDFDocumentRequest(IOUtils.toByteArray(pdfStream));
+                pdfStream.close();
                 HttpEntity<SavePDFDocumentRequest> payload =
                         new HttpEntity<>(req, new HttpHeaders());
                 try {
@@ -458,7 +453,7 @@ public class TransformerService {
                                             "processDocumentsSvc - SavePDFDocument ("
                                                     + folderShortName
                                                     + ")")));
-                    if (response.getBody().getResultCd().equals("0")) {
+                    if (response.getBody().getResponseCd().equals("0")) {
                         // map file name and guid
                         guidMapDocument
                                 .getMappings()
@@ -492,7 +487,10 @@ public class TransformerService {
             String xml = sw.toString();
 
             ProcessXMLRequest req =
-                    new ProcessXMLRequest(document, xml.getBytes(StandardCharsets.UTF_8));
+                    new ProcessXMLRequest(
+                            document,
+                            Base64.getEncoder()
+                                    .encodeToString(xml.getBytes(StandardCharsets.UTF_8)));
             if (folderShortName.equals("CCs")) {
                 UriComponentsBuilder builder3 =
                         UriComponentsBuilder.fromHttpUrl(host + "doc/processCCs");
@@ -504,15 +502,15 @@ public class TransformerService {
                                     HttpMethod.POST,
                                     payload,
                                     ProcessCCsResponse.class);
+                    if (!response.getBody().getResponseCd().equals("0")) {
+                        log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
+                    }
                     log.info(
                             objectMapper.writeValueAsString(
                                     new RequestSuccessLog(
                                             "Request Success",
                                             "processDocumentsSvc - ProcessCCsXML")));
-
-                    if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResponseMessageTxt());
-                    }
                 } catch (Exception e) {
                     log.error(
                             objectMapper.writeValueAsString(
@@ -527,7 +525,6 @@ public class TransformerService {
                             dateFormat.format(Calendar.getInstance().getTime()),
                             fileName,
                             document);
-
                     throw new ORDSException();
                 }
             } else if (folderShortName.equals("Letters")) {
@@ -541,15 +538,15 @@ public class TransformerService {
                                     HttpMethod.POST,
                                     payload,
                                     ProcessLettersResponse.class);
+                    if (!response.getBody().getResponseCd().equals("0")) {
+                        log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                        throw new ORDSException(response.getBody().getResponseMessageTxt());
+                    }
                     log.info(
                             objectMapper.writeValueAsString(
                                     new RequestSuccessLog(
                                             "Request Success",
                                             "processDocumentsSvc - ProcessLettersXML")));
-
-                    if (!response.getBody().getResultCd().equals("0")) {
-                        throw new ORDSException(response.getBody().getResponseMessageTxt());
-                    }
                 } catch (Exception e) {
                     log.error(
                             objectMapper.writeValueAsString(
@@ -558,6 +555,11 @@ public class TransformerService {
                                             "processDocumentsSvc - ProcessLettersXML",
                                             e.getMessage(),
                                             req)));
+                    saveError(
+                            e.getMessage(),
+                            dateFormat.format(Calendar.getInstance().getTime()),
+                            fileName,
+                            document);
                     throw new ORDSException();
                 }
             } else {
@@ -583,11 +585,12 @@ public class TransformerService {
         for (String pdf : pdfs) {
             UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "rpt");
 
-            File reqPDF = new File(pdf);
-            byte[] file = readFile(reqPDF);
+            InputStream reqPDF = fileService.getContent(pdf);
+            byte[] file = IOUtils.toByteArray(reqPDF);
+            reqPDF.close();
 
             ProcessReportRequest req =
-                    new ProcessReportRequest(reqPDF.getName(), processedDate, file);
+                    new ProcessReportRequest(getFileName(pdf), processedDate, file);
             HttpEntity<ProcessReportRequest> payload = new HttpEntity<>(req, new HttpHeaders());
             try {
                 HttpEntity<ProcessReportResponse> response =
@@ -596,13 +599,13 @@ public class TransformerService {
                                 HttpMethod.POST,
                                 payload,
                                 ProcessReportResponse.class);
+                if (!response.getBody().getResponseCd().equals("0")) {
+                    log.warn("ResponseCd from DB is " + response.getBody().getResponseCd());
+                    throw new ORDSException(response.getBody().getResponseMessageTxt());
+                }
                 log.info(
                         objectMapper.writeValueAsString(
                                 new RequestSuccessLog("Request Success", "processReportSvc")));
-
-                if (!response.getBody().getResultCd().equals("0")) {
-                    throw new ORDSException(response.getBody().getResponseMessageTxt());
-                }
             } catch (Exception e) {
                 log.error(
                         objectMapper.writeValueAsString(
@@ -615,7 +618,7 @@ public class TransformerService {
                 saveError(
                         e.getMessage(),
                         dateFormat.format(Calendar.getInstance().getTime()),
-                        pdf,
+                        getFileName(pdf),
                         file);
 
                 throw new ORDSException();
@@ -623,12 +626,14 @@ public class TransformerService {
         }
     }
 
-    public boolean validateXml(String xsdPath, File xmlFile) {
+    public boolean validateXml(String xsdPath, String xmlFile) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source schemaFile = new StreamSource(xsdPath);
         try {
+            ByteArrayInputStream xmlFileForValidation = fileService.getContent(xmlFile);
             Schema schema = factory.newSchema(schemaFile);
-            schema.newValidator().validate(new StreamSource(xmlFile));
+            Source streamSource = new StreamSource(xmlFileForValidation);
+            schema.newValidator().validate(streamSource);
             return true;
         } catch (Exception e) {
             log.error("validateXml error: " + e.getMessage());
@@ -636,16 +641,15 @@ public class TransformerService {
         }
     }
 
-    public static final List<String> extractPDFFileNames(String folderName) throws IOException {
+    public List<String> extractPDFFileNames(String folderName) throws IOException {
         /** Purpose of this service is to extract a list of file names from a given folder */
         List<String> pdfs = new ArrayList<>();
 
         try {
-            File file = new File(folderName);
-            File[] files = file.listFiles();
-            for (File f : files) {
-                if (FilenameUtils.getExtension(f.getName()).equalsIgnoreCase("pdf")) {
-                    pdfs.add(f.getCanonicalPath());
+            List<String> fileNames = fileService.listFiles(folderName);
+            for (String f : fileNames) {
+                if (f.substring(f.lastIndexOf('.')).equalsIgnoreCase(".pdf")) {
+                    pdfs.add(f);
                 }
             }
             return pdfs;
@@ -654,24 +658,23 @@ public class TransformerService {
         }
     }
 
-    public static final String extractXMLFileName(String[] fileList, String regex)
-            throws IOException {
+    public String extractXMLFileName(List<String> fileList, String regex) throws IOException {
         /**
          * Purpose of this service is to extract a file from a list of file names given a specific
          * regex.
          */
         String result = null;
-        if (fileList == null || fileList.length == 0 || regex == null) {
+        if (fileList == null || fileList.size() == 0 || regex == null) {
             throw new IOException(
                     "Unsatisfied parameter requirement(s) at CRDP.Source.ProcessIncomingFile.Java:extractXMLFileName");
         }
         try {
-            for (int i = 0; i < fileList.length; i++) {
-                if (Pattern.matches(regex, fileList[i])) {
+            for (int i = 0; i < fileList.size(); i++) {
+                if (Pattern.matches(regex, getFileName(fileList.get(i)))) {
                     if (result != null)
                         throw new IOException(
                                 "Multiple files found satisfying regex at CRDP.Source.ProcessIncomingFile.Java:extractXMLFileName. Should only be one.");
-                    result = fileList[i];
+                    result = fileList.get(i);
                 }
             }
             return result;

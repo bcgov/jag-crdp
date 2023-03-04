@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SaveErrorRequest implements Serializable {
     private String errMsg;
-    private String date;
+    private String errorDt;
     private String fileName;
     private byte[] fileContentXml;
 }
