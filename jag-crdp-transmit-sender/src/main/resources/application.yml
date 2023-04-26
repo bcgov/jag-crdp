@@ -8,6 +8,7 @@ crdp:
   password: ${ORDS_PASSWORD}
   receiver-queue: ${RECEIVER_QUEUE_NAME}
   out-file-dir: ${OUTGOING_FILE_DIR}
+  ords-read-timeout: ${ORDS_READ_TIMEOUT:120}
 
 spring:
   rabbitmq:
