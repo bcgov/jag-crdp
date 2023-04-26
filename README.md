@@ -38,6 +38,7 @@ BASIC_AUTH_USER: The username for the basic authentication. This can be any valu
 6) RABBIT_MQ_HOST: RabbitMQ host, 'localhost' by default if installing a RabbitMQ on a local computer
 7) RABBIT_MQ_USERNAME: RabbitMQ host username
 8) RABBIT_MQ_PASSWORD: RabbitMQ host password
+9) ORDS_READ_TIMEOUT: Timeout in seconds which expects the response/result from ORDS
 
 * transmit sender:
 1) ORDS_HOST: The url for ords rest package
@@ -50,6 +51,7 @@ BASIC_AUTH_USER: The username for the basic authentication. This can be any valu
 8) SFEG_HOST: The url to SFEG server
 9) SFTP_KNOWN_HOSTS: The location of known_hosts file
 10) SFTP_PRIVATE_KEY: The location of private security key for accessing SFEG server
+11) ORDS_READ_TIMEOUT: Timeout in seconds which expects the response/result from ORDS
 
 * process scanner:
 1) SCANNER_QUEUE_NAME: RabbitMQ queue name for scanner messages, up to 255 bytes of UTF-8 characters
@@ -82,6 +84,7 @@ BASIC_AUTH_USER: The username for the basic authentication. This can be any valu
 11) SFTP_KNOWN_HOSTS: The location of known_hosts file
 12) SFTP_PRIVATE_KEY: The private security key for accessing SFEG server
 13) SFTP_ENABLED: true/false on whether SFTP is used (if false - only in local testing, local file system will be used)
+14) ORDS_READ_TIMEOUT: Timeout in seconds which expects the response/result from ORDS
 
 ### Optional Environmental Variables
 SPLUNK_HTTP_URL: The url for the splunk hec.

@@ -7,6 +7,7 @@ crdp:
   username: ${ORDS_USERNAME}
   password: ${ORDS_PASSWORD}
   cron-job-outgoing-file:  ${CRON_JOB_OUTGOING_FILE}
+  ords-read-timeout: ${ORDS_READ_TIMEOUT:120}
   rabbitmq:
     receiver-queue: ${RECEIVER_QUEUE_NAME}
     receiver-routing-key: ${RECEIVER_ROUTING_KEY}
