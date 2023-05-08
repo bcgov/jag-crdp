@@ -4,7 +4,6 @@ import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.models.OrdsErrorLog;
 import ca.bc.gov.open.crdp.models.RequestSuccessLog;
 import ca.bc.gov.open.crdp.transmit.models.ReceiverPub;
-import ca.bc.gov.open.crdp.transmit.models.SaveDataExchangeFileRequest;
 import ca.bc.gov.open.crdp.transmit.models.UpdateTransmissionRequest;
 import ca.bc.gov.open.sftp.starter.JschSessionProvider;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
@@ -55,46 +54,6 @@ public class SenderService {
         this.sftpProperties = sftpProperties;
     }
 
-    public int saveXmlFile(ReceiverPub xmlPub) throws JsonProcessingException {
-        UriComponentsBuilder saveFileBuilder = UriComponentsBuilder.fromHttpUrl(host + "save-file");
-
-        HttpEntity<SaveDataExchangeFileRequest> payload =
-                new HttpEntity<>(
-                        new SaveDataExchangeFileRequest(
-                                xmlPub.getFileName(),
-                                xmlPub.getXmlString().getBytes(StandardCharsets.UTF_8),
-                                xmlPub.getDataExchangeFileSeqNo()),
-                        new HttpHeaders());
-
-        HttpEntity<Map<String, String>> saveFileResp = null;
-        // Save XML file
-        try {
-            saveFileResp =
-                    restTemplate.exchange(
-                            saveFileBuilder.toUriString(),
-                            HttpMethod.POST,
-                            payload,
-                            new ParameterizedTypeReference<>() {});
-            if (saveFileResp.getBody().get("responseCd") != null
-                    && saveFileResp.getBody().get("responseCd").equals("1")) {
-                throw new ORDSException(saveFileResp.getBody().get("responseMessageTxt"));
-            }
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "saveDataExchangeFile")));
-            return 0;
-        } catch (Exception ex) {
-            log.error(
-                    objectMapper.writeValueAsString(
-                            new OrdsErrorLog(
-                                    "Error received from ORDS",
-                                    "saveDataExchangeFile",
-                                    ex.getMessage(),
-                                    payload)));
-            return -1;
-        }
-    }
-
     public int updateTransmissionSent(ReceiverPub xmlPub) throws JsonProcessingException {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "update-sent");
 
@@ -105,11 +64,13 @@ public class SenderService {
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
         req.setPartTwoIds(xmlPub.getPartTwoFileIds());
+        req.setFileName(xmlPub.getFileName());
+        req.setXmlString(xmlPub.getXmlString().getBytes(StandardCharsets.UTF_8));
 
         HttpEntity<UpdateTransmissionRequest> payload =
                 new HttpEntity<>(req, new HttpHeaders());
         HttpEntity<Map<String, String>> resp = null;
-        // Update Transmission Sent
+        // Update Transmission status and save data exchange file
         try {
             resp =
                     restTemplate.exchange(

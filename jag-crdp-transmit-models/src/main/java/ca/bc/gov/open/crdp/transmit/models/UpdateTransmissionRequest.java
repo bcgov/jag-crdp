@@ -15,4 +15,6 @@ public class UpdateTransmissionRequest implements Serializable {
     private List<String> partTwoIds;
     private String dataExchangeFileSeqNo;
     private String currentDate;
+    private String fileName;
+    private byte[] xmlString;
 }

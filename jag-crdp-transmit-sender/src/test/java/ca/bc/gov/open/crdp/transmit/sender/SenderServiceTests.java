@@ -38,59 +38,6 @@ class SenderServiceTests {
     }
 
     @Test
-    void testSaveXmlFile() throws JsonProcessingException {
-        var req = new ReceiverPub();
-        req.setDataExchangeFileSeqNo("A");
-        req.setDataExchangeFileSeqNo("A");
-        req.setXmlString("A");
-        req.setPartOneFileIds(new ArrayList<>());
-        req.setPartTwoFileIds(new ArrayList<>());
-        req.setRegModFileIds(new ArrayList<>());
-
-        Map<String, String> out = new HashMap<>();
-        out.put("responseCd", "0");
-        ResponseEntity<Map<String, String>> responseEntity =
-                new ResponseEntity<>(out, HttpStatus.OK);
-
-        // Set up to mock ords response
-        when(restTemplate.exchange(
-                Mockito.any(String.class),
-                Mockito.eq(HttpMethod.POST),
-                Mockito.<HttpEntity<String>>any(),
-                Mockito.<ParameterizedTypeReference<Map<String, String>>>any()))
-                .thenReturn(responseEntity);
-
-        Assertions.assertEquals(0, controller.saveXmlFile(req));
-    }
-
-    @Test
-    void testSaveXmlFileFail() throws JsonProcessingException {
-        var req = new ReceiverPub();
-        req.setDataExchangeFileSeqNo("A");
-        req.setDataExchangeFileSeqNo("A");
-        req.setXmlString("A");
-        req.setPartOneFileIds(new ArrayList<>());
-        req.setPartTwoFileIds(new ArrayList<>());
-        req.setRegModFileIds(new ArrayList<>());
-
-        Map<String, String> out = new HashMap<>();
-        out.put("responseCd", "1");
-        out.put("responseMessageTxt", "A");
-        ResponseEntity<Map<String, String>> responseEntity =
-                new ResponseEntity<>(out, HttpStatus.OK);
-
-        // Set up to mock ords response
-        when(restTemplate.exchange(
-                Mockito.any(String.class),
-                Mockito.eq(HttpMethod.POST),
-                Mockito.<HttpEntity<String>>any(),
-                Mockito.<ParameterizedTypeReference<Map<String, String>>>any()))
-                .thenReturn(responseEntity);
-
-        Assertions.assertEquals(-1, controller.saveXmlFile(req));
-    }
-
-    @Test
     void testUpdateTransmissionSent() throws JsonProcessingException {
         var req = new ReceiverPub();
         req.setDataExchangeFileSeqNo("A");
