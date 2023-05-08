@@ -124,45 +124,8 @@ public class ReceiverService {
         }
 
         String xmlString = xmlBuilder(reqFileResp.getBody());
-        // Save Data Exchange File
         if (xmlString == null) {
             return -2;
-        }
-
-        UriComponentsBuilder saveFileBuilder = UriComponentsBuilder.fromHttpUrl(host + "save-file");
-
-        HttpEntity<SaveDataExchangeFileRequest> payload =
-                new HttpEntity<>(
-                        new SaveDataExchangeFileRequest(
-                                reqFileResp.getBody().getFileName(),
-                                xmlString.getBytes(StandardCharsets.UTF_8),
-                                reqFileResp.getBody().getDataExchangeFileSeqNo()),
-                        new HttpHeaders());
-
-        HttpEntity<Map<String, String>> saveFileResp = null;
-        try {
-            saveFileResp =
-                    restTemplate.exchange(
-                            saveFileBuilder.toUriString(),
-                            HttpMethod.POST,
-                            payload,
-                            new ParameterizedTypeReference<>() {});
-            if (saveFileResp.getBody().get("responseCd") != null
-                    && saveFileResp.getBody().get("responseCd").equals("1")) {
-                throw new ORDSException(saveFileResp.getBody().get("responseMessageTxt"));
-            }
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "saveDataExchangeFile")));
-        } catch (Exception ex) {
-            log.error(
-                    objectMapper.writeValueAsString(
-                            new OrdsErrorLog(
-                                    "Error received from ORDS",
-                                    "saveDataExchangeFile",
-                                    ex.getMessage(),
-                                    payload)));
-            return -3;
         }
 
         // Public xml (in ReceiverPub) for sender
@@ -185,7 +148,7 @@ public class ReceiverService {
                                     "generateIncomingRequestFile",
                                     ex.getMessage(),
                                     reqFileResp.getBody())));
-            return -4;
+            return -3;
         }
         return 0;
     }

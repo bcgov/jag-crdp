@@ -4,7 +4,7 @@ import ca.bc.gov.open.crdp.exceptions.ORDSException;
 import ca.bc.gov.open.crdp.models.OrdsErrorLog;
 import ca.bc.gov.open.crdp.models.RequestSuccessLog;
 import ca.bc.gov.open.crdp.transmit.models.ReceiverPub;
-import ca.bc.gov.open.crdp.transmit.models.UpdateTransmissionSentRequest;
+import ca.bc.gov.open.crdp.transmit.models.UpdateTransmissionRequest;
 import ca.bc.gov.open.sftp.starter.JschSessionProvider;
 import ca.bc.gov.open.sftp.starter.SftpProperties;
 import ca.bc.gov.open.sftp.starter.SftpServiceImpl;
@@ -57,18 +57,20 @@ public class SenderService {
     public int updateTransmissionSent(ReceiverPub xmlPub) throws JsonProcessingException {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "update-sent");
 
-        UpdateTransmissionSentRequest req = new UpdateTransmissionSentRequest();
+        UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         req.setCurrentDate(LocalDateTime.now().format(format));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
         req.setPartTwoIds(xmlPub.getPartTwoFileIds());
+        req.setFileName(xmlPub.getFileName());
+        req.setXmlString(xmlPub.getXmlString().getBytes(StandardCharsets.UTF_8));
 
-        HttpEntity<UpdateTransmissionSentRequest> payload =
+        HttpEntity<UpdateTransmissionRequest> payload =
                 new HttpEntity<>(req, new HttpHeaders());
         HttpEntity<Map<String, String>> resp = null;
-        // Update Transmission Sent
+        // Update Transmission status and save data exchange file
         try {
             resp =
                     restTemplate.exchange(
@@ -116,7 +118,8 @@ public class SenderService {
                                     "sendXmlFile",
                                     ex.getMessage(),
                                     xmlPub)));
-            return -1;
+            // Rollback exchange file save and status update (SENT to RDY)
+            return revertSavingAndStatusUpdate(xmlPub);
         } finally {
             if (f != null && f.exists()) {
                 if (!f.delete()) {
@@ -129,5 +132,47 @@ public class SenderService {
     public void sftpTransfer(String dest, File payload) {
         SftpServiceImpl sftpService = new SftpServiceImpl(jschSessionProvider, sftpProperties);
         sftpService.put(payload.getAbsoluteFile().getPath(), dest);
+    }
+
+    private int revertSavingAndStatusUpdate(ReceiverPub xmlPub) throws JsonProcessingException {
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "revert");
+
+        UpdateTransmissionRequest req = new UpdateTransmissionRequest();
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        req.setCurrentDate(LocalDateTime.now().format(format));
+        req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
+        req.setPartOneIds(xmlPub.getPartOneFileIds());
+        req.setRegModIds(xmlPub.getRegModFileIds());
+        req.setPartTwoIds(xmlPub.getPartTwoFileIds());
+
+        HttpEntity<UpdateTransmissionRequest> payload =
+                new HttpEntity<>(req, new HttpHeaders());
+        HttpEntity<Map<String, String>> resp = null;
+        // Revert saving XML and status update (status changes back to RDY from SENT)
+        try {
+            resp =
+                    restTemplate.exchange(
+                            builder.toUriString(),
+                            HttpMethod.POST,
+                            payload,
+                            new ParameterizedTypeReference<>() {});
+            if (resp.getBody().get("responseCd") != null
+                    && resp.getBody().get("responseCd").equals("1")) {
+                throw new ORDSException(resp.getBody().get("responseMessageTxt"));
+            }
+            log.info(
+                    objectMapper.writeValueAsString(
+                            new RequestSuccessLog("Request Success", "revertSavingAndStatusUpdate")));
+            return 1;
+        } catch (Exception ex) {
+            log.error(
+                    objectMapper.writeValueAsString(
+                            new OrdsErrorLog(
+                                    "Error received from ORDS",
+                                    "revertSavingAndStatusUpdate",
+                                    ex.getMessage(),
+                                    payload)));
+            return -1;
+        }
     }
 }

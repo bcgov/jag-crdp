@@ -179,27 +179,4 @@ public class ReceiverServiceTests {
 
         Assertions.assertEquals(-2, controller.GenerateIncomingRequestFile());
     }
-
-    @Test
-    public void generateIncomingRequestFileFail3() throws IOException {
-        var generateIncomingReqFileResponse = new GenerateIncomingReqFileResponse();
-        generateIncomingReqFileResponse.setPartOneCount(1);
-        generateIncomingReqFileResponse.setPartTwoCount(2);
-
-        generateIncomingReqFileResponse.setFileName("unittest.xml");
-        generateIncomingReqFileResponse.setResponseCd("0");
-
-        ResponseEntity<GenerateIncomingReqFileResponse> responseEntity =
-                new ResponseEntity<>(generateIncomingReqFileResponse, HttpStatus.OK);
-
-        //     Set up to mock ords response
-        when(restTemplate.exchange(
-                        Mockito.any(String.class),
-                        Mockito.eq(HttpMethod.GET),
-                        Mockito.<HttpEntity<String>>any(),
-                        Mockito.<Class<GenerateIncomingReqFileResponse>>any()))
-                .thenReturn(responseEntity);
-
-        Assertions.assertEquals(-3, controller.GenerateIncomingRequestFile());
-    }
 }
