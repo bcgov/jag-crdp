@@ -27,6 +27,7 @@ public class ConsumerService {
     @RabbitListener(queues = "${crdp.receiver-queue}")
     public void receiveReceiverPubMessage(@Payload Message<ReceiverPub> message)
             throws IOException {
+        senderService.saveXmlFile(message.getPayload());
         senderService.updateTransmissionSent(message.getPayload());
         senderService.sendXmlFile(message.getPayload());
     }
