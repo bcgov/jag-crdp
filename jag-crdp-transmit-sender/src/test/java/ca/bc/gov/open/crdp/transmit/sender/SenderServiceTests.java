@@ -43,6 +43,7 @@ class SenderServiceTests {
         req.setDataExchangeFileSeqNo("A");
         req.setDataExchangeFileSeqNo("A");
         req.setXmlString("A");
+        req.setFileName("A");
         req.setPartOneFileIds(new ArrayList<>());
         req.setPartTwoFileIds(new ArrayList<>());
         req.setRegModFileIds(new ArrayList<>());
@@ -69,6 +70,7 @@ class SenderServiceTests {
         req.setDataExchangeFileSeqNo("A");
         req.setDataExchangeFileSeqNo("A");
         req.setXmlString("A");
+        req.setFileName("A");
         req.setPartOneFileIds(new ArrayList<>());
         req.setPartTwoFileIds(new ArrayList<>());
         req.setRegModFileIds(new ArrayList<>());
