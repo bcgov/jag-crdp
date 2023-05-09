@@ -67,8 +67,7 @@ public class SenderService {
         req.setFileName(xmlPub.getFileName());
         req.setXmlString(xmlPub.getXmlString().getBytes(StandardCharsets.UTF_8));
 
-        HttpEntity<UpdateTransmissionRequest> payload =
-                new HttpEntity<>(req, new HttpHeaders());
+        HttpEntity<UpdateTransmissionRequest> payload = new HttpEntity<>(req, new HttpHeaders());
         HttpEntity<Map<String, String>> resp = null;
         // Update Transmission status and save data exchange file
         try {
@@ -145,8 +144,7 @@ public class SenderService {
         req.setRegModIds(xmlPub.getRegModFileIds());
         req.setPartTwoIds(xmlPub.getPartTwoFileIds());
 
-        HttpEntity<UpdateTransmissionRequest> payload =
-                new HttpEntity<>(req, new HttpHeaders());
+        HttpEntity<UpdateTransmissionRequest> payload = new HttpEntity<>(req, new HttpHeaders());
         HttpEntity<Map<String, String>> resp = null;
         // Revert saving XML and status update (status changes back to RDY from SENT)
         try {
@@ -162,7 +160,8 @@ public class SenderService {
             }
             log.info(
                     objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "revertSavingAndStatusUpdate")));
+                            new RequestSuccessLog(
+                                    "Request Success", "revertSavingAndStatusUpdate")));
             return 1;
         } catch (Exception ex) {
             log.error(
