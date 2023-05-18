@@ -267,41 +267,41 @@ public class ReceiverService {
             }
             // END CRDPAPPINPART1-REGNUMBER_MOD
 
-            // CRDPAPPINPART2
+            // CRDPDISPINPART2
             if (fileComponent.getPartTwoData() != null) {
                 for (PartTwoData two : fileComponent.getPartTwoData()) {
-                    Element crdpappinPart2 = doc.createElement("CRDPAPPINPART2");
-                    createXmlNode("Record_Type", two.getRecordType(), crdpappinPart2, doc);
-                    createXmlNode("Court_Number", two.getCourtNumber(), crdpappinPart2, doc);
+                    Element crdpdispinPart2 = doc.createElement("CRDPDISPINPART2");
+                    createXmlNode("Record_Type", two.getRecordType(), crdpdispinPart2, doc);
+                    createXmlNode("Court_Number", two.getCourtNumber(), crdpdispinPart2, doc);
                     createXmlNode(
                             "Divorce_Registry_Number",
                             two.getDivorceRegistryNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     createXmlNode(
                             "Source_Case_Number",
                             two.getSourceCaseNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc); // No data from DB
                     createXmlNode(
-                            "Disposition_Code", two.getDispositionCode(), crdpappinPart2, doc);
+                            "Disposition_Code", two.getDispositionCode(), crdpdispinPart2, doc);
                     createXmlNode(
-                            "Disposition_Date", two.getDispositionDate(), crdpappinPart2, doc);
+                            "Disposition_Date", two.getDispositionDate(), crdpdispinPart2, doc);
                     createXmlNode(
                             "Transferred_Court_Number",
                             two.getTransferredCourtNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     createXmlNode(
                             "Disposition_Signed_Date",
                             two.getDispositionSignedDate(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     partTwoIds.add(two.getPhysicalFileId());
-                    rootElement.appendChild(crdpappinPart2);
+                    rootElement.appendChild(crdpdispinPart2);
                 }
             }
-            // END CRDPAPPINPART2
+            // END CRDPDISPINPART2
 
             // CRDPAPPIN99
             Element crdpappin99 = doc.createElement("CRDPAPPIN99");
