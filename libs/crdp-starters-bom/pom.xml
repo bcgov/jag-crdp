@@ -29,7 +29,7 @@
         <spring.starter.test.version>2.7.5</spring.starter.test.version>
         <spring.security.test.version>5.7.3</spring.security.test.version>
         <spring.logging.version>2.7.5</spring.logging.version>
-        <jackson.datatype.jsr310.version>2.13.4</jackson.datatype.jsr310.version>
+        <jackson.datatype.jsr310.version>2.15.2</jackson.datatype.jsr310.version>
         <jackson.databind.version>2.12.7.1</jackson.databind.version>
         <splunk.javalogging.version>1.11.1</splunk.javalogging.version>
         <logback.classic.version>1.2.11</logback.classic.version>
