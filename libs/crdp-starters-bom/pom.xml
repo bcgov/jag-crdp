@@ -12,7 +12,7 @@
     <properties>
         <org.apache.cxf.version>3.3.7</org.apache.cxf.version>
         <com.fasterxml.jackson.core.version>2.11.2</com.fasterxml.jackson.core.version>
-        <javax.xml.bind.version>2.3.1</javax.xml.bind.version>
+        <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
         <commons.io.version>2.11.0</commons.io.version>
         <joda-time.version>2.10.6</joda-time.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
@@ -50,7 +50,7 @@
         <jaxb2-commons.basics.version>1.11.1</jaxb2-commons.basics.version>
         <junit.version>4.13.2</junit.version>
         <spring.test.version>5.3.23</spring.test.version>
-        <spring.amqp.version>2.5.14</spring.amqp.version>
+        <spring.amqp.version>3.1.3</spring.amqp.version>
         <spring.rabbit.test.version>2.4.7</spring.rabbit.test.version>
     </properties>
 
@@ -87,10 +87,11 @@
                 <artifactId>cxf-rt-transports-http-jetty</artifactId>
                 <version>${org.apache.cxf.version}</version>
             </dependency>
+
             <dependency>
-                <groupId>javax.xml.bind</groupId>
-                <artifactId>jaxb-api</artifactId>
-                <version>${javax.xml.bind.version}</version>
+                <groupId>jakarta.xml.bind</groupId>
+                <artifactId>jakarta.xml.bind-api</artifactId>
+                <version>${jakarta.xml.bind-api.version}</version>
             </dependency>
 
             <dependency>
@@ -337,13 +338,6 @@
                             </indent>
                         </format>
                     </formats>
-                    <!-- define a language-specific format -->
-                    <java>
-                        <googleJavaFormat>
-                            <version>1.8</version>
-                            <style>AOSP</style>
-                        </googleJavaFormat>
-                    </java>
                 </configuration>
             </plugin>
         </plugins>
