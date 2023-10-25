@@ -8,7 +8,7 @@
 * Intellij
 * Docker
 * Maven
-* Java 11
+* Java 17
 * Lombok
 * RabbitMQ
 
