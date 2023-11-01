@@ -134,7 +134,7 @@ public class ScannerService {
             // Create Processing/Datetime folder
             // 493 -> 111 101 101 -> 755
             fileService.makeFolder(
-                    processingDir + "/" + customFormatter.format(scanDateTime),
+                    processingDir + "\\" + customFormatter.format(scanDateTime),
                     PERMISSIONS_DECIMAL);
 
             try {
@@ -209,9 +209,9 @@ public class ScannerService {
                 processingFilesToMove.put(
                         arr[index],
                         processingDir
-                                + "/"
+                                + "\\"
                                 + customFormatter.format(scanDateTime)
-                                + "/"
+                                + "\\"
                                 + Paths.get(arr[index]).getFileName().toString());
             }
 
@@ -231,11 +231,11 @@ public class ScannerService {
                         processingFoldersToMove.put(
                                 arr[index],
                                 processingDir
-                                        + "/"
+                                        + "\\"
                                         + customFormatter.format(scanDateTime)
-                                        + "/"
+                                        + "\\"
                                         + processFolderName
-                                        + "/"
+                                        + "\\"
                                         + getFileName(arr[index]));
                     } else {
                         // recursion for sub-directories
