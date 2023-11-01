@@ -73,10 +73,10 @@ public class TransformerService {
     private static TreeMap<String, String> erredFoldersToMove =
             new TreeMap<String, String>(); // erred folders.
 
-    private static String auditSchemaPath = "xsdSchemas\\outgoingAudit.xsd";
-    private static String ccSchemaPath = "xsdSchemas\\outgoingCCs.xsd";
-    private static String lettersSchemaPath = "xsdSchemas\\outgoingLetters.xsd";
-    private static String statusSchemaPath = "xsdSchemas\\outgoingStatus.xsd";
+    private static String auditSchemaPath = "xsdSchemas/outgoingAudit.xsd";
+    private static String ccSchemaPath = "xsdSchemas/outgoingCCs.xsd";
+    private static String lettersSchemaPath = "xsdSchemas/outgoingLetters.xsd";
+    private static String statusSchemaPath = "xsdSchemas/outgoingStatus.xsd";
 
     DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -129,7 +129,7 @@ public class TransformerService {
                 // create completed folder with last scanning timestamp
                 if (!completedFilesToMove.isEmpty()
                         || !completedFoldersToMove.isEmpty()
-                                && !fileService.exists(completedDir + "/" + timestamp)) {
+                        && !fileService.exists(completedDir + "/" + timestamp)) {
                     fileService.makeFolder(completedDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
@@ -142,7 +142,7 @@ public class TransformerService {
                 // create errors folder with last scanning timestamp
                 if (!erredFilesToMove.isEmpty()
                         || !erredFoldersToMove.isEmpty()
-                                && !fileService.exists(errorsDir + "/" + timestamp)) {
+                        && !fileService.exists(errorsDir + "/" + timestamp)) {
                     log.info("making " + errorsDir + "/" + timestamp);
                     fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
