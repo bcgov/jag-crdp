@@ -15,7 +15,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXB;
+import jakarta.xml.bind.JAXB;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -129,7 +129,7 @@ public class TransformerService {
                 // create completed folder with last scanning timestamp
                 if (!completedFilesToMove.isEmpty()
                         || !completedFoldersToMove.isEmpty()
-                                && !fileService.exists(completedDir + "/" + timestamp)) {
+                        && !fileService.exists(completedDir + "/" + timestamp)) {
                     fileService.makeFolder(completedDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }
                 for (Map.Entry<String, String> m : completedFilesToMove.entrySet()) {
@@ -142,7 +142,7 @@ public class TransformerService {
                 // create errors folder with last scanning timestamp
                 if (!erredFilesToMove.isEmpty()
                         || !erredFoldersToMove.isEmpty()
-                                && !fileService.exists(errorsDir + "/" + timestamp)) {
+                        && !fileService.exists(errorsDir + "/" + timestamp)) {
                     log.info("making " + errorsDir + "/" + timestamp);
                     fileService.makeFolder(errorsDir + "/" + timestamp, PERMISSIONS_DECIMAL);
                 }

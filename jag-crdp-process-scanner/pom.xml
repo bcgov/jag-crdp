@@ -12,6 +12,12 @@
     <version>1.0.0</version>
     <name>jag-crdp-process-scanner</name>
 
+    <properties>
+        <java.version>17</java.version>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
     <repositories>
         <repository>
             <id>splunk-artifactory</id>
@@ -163,14 +169,6 @@
             <artifactId>commons-beanutils</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-commons-lang</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.jvnet.jaxb2_commons</groupId>
-            <artifactId>jaxb2-basics</artifactId>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
@@ -196,7 +194,7 @@
         <dependency>
             <groupId>ca.bc.gov.open</groupId>
             <artifactId>crdp-sftp-starter</artifactId>
-            <version>0.2.2</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>
@@ -206,7 +204,7 @@
             <dependency>
                 <groupId>ca.bc.gov.open</groupId>
                 <artifactId>crdp-starters-bom</artifactId>
-                <version>0.2.2</version>
+                <version>1.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -250,19 +248,12 @@
                             </indent>
                         </format>
                     </formats>
-                    <!-- define a language-specific format -->
-                    <java>
-                        <googleJavaFormat>
-                            <version>1.8</version>
-                            <style>AOSP</style>
-                        </googleJavaFormat>
-                    </java>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.10</version>
                 <configuration>
                     <excludes>
                         <exclude>**/configuration/WSDLFilter*</exclude>
