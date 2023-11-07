@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.UUID;
@@ -59,7 +60,7 @@ public class SenderService {
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        req.setCurrentDate(LocalDateTime.now().format(format));
+        req.setCurrentDate(LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
@@ -138,7 +139,7 @@ public class SenderService {
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        req.setCurrentDate(LocalDateTime.now().format(format));
+        req.setCurrentDate(LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
