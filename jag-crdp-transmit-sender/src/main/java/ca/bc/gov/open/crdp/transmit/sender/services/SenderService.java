@@ -60,9 +60,8 @@ public class SenderService {
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String localDateTime = LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific")));
-        log.info("localDateTime:" + localDateTime);
-        req.setCurrentDate(localDateTime);
+        req.setCurrentDate(LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
+        log.info("localDateTime:" + LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
@@ -141,8 +140,7 @@ public class SenderService {
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        String localDateTime = LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific")));
-        log.info("localDateTime:" + localDateTime);
+        log.info("localDateTime:" + LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
