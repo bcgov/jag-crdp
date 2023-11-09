@@ -61,6 +61,7 @@ public class SenderService {
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("Canada/Pacific"));
+        log.info("localDateTime:" + format.format(new Date()));
         req.setCurrentDate(format.format(new Date()));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
@@ -141,6 +142,7 @@ public class SenderService {
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         format.setTimeZone(TimeZone.getTimeZone("Canada/Pacific"));
+        log.info("localDateTime:" + format.format(new Date()));
         req.setCurrentDate(format.format(new Date()));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
