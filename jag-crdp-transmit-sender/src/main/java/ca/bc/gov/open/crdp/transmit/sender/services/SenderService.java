@@ -12,10 +12,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -59,9 +59,9 @@ public class SenderService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "update-sent");
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        req.setCurrentDate(LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
-        log.info("localDateTime:" + LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("Canada/Pacific"));
+        req.setCurrentDate(format.format(new Date()));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
@@ -139,8 +139,9 @@ public class SenderService {
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "revert");
 
         UpdateTransmissionRequest req = new UpdateTransmissionRequest();
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        log.info("localDateTime:" + LocalDateTime.now().format(format.withZone(ZoneId.of("Canada/Pacific"))));
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("Canada/Pacific"));
+        req.setCurrentDate(format.format(new Date()));
         req.setDataExchangeFileSeqNo(xmlPub.getDataExchangeFileSeqNo());
         req.setPartOneIds(xmlPub.getPartOneFileIds());
         req.setRegModIds(xmlPub.getRegModFileIds());
