@@ -1,4 +1,4 @@
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jre-slim
 
 COPY ./jag-crdp-application/target/jag-crdp-application.jar jag-crdp-application.jar
 

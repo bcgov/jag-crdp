@@ -9,11 +9,9 @@ import ca.bc.gov.open.crdp.transmit.receiver.configuration.QueueConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
@@ -28,7 +26,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -124,45 +121,8 @@ public class ReceiverService {
         }
 
         String xmlString = xmlBuilder(reqFileResp.getBody());
-        // Save Data Exchange File
         if (xmlString == null) {
             return -2;
-        }
-
-        UriComponentsBuilder saveFileBuilder = UriComponentsBuilder.fromHttpUrl(host + "save-file");
-
-        HttpEntity<SaveDataExchangeFileRequest> payload =
-                new HttpEntity<>(
-                        new SaveDataExchangeFileRequest(
-                                reqFileResp.getBody().getFileName(),
-                                xmlString.getBytes(StandardCharsets.UTF_8),
-                                reqFileResp.getBody().getDataExchangeFileSeqNo()),
-                        new HttpHeaders());
-
-        HttpEntity<Map<String, String>> saveFileResp = null;
-        try {
-            saveFileResp =
-                    restTemplate.exchange(
-                            saveFileBuilder.toUriString(),
-                            HttpMethod.POST,
-                            payload,
-                            new ParameterizedTypeReference<>() {});
-            if (saveFileResp.getBody().get("responseCd") != null
-                    && saveFileResp.getBody().get("responseCd").equals("1")) {
-                throw new ORDSException(saveFileResp.getBody().get("responseMessageTxt"));
-            }
-            log.info(
-                    objectMapper.writeValueAsString(
-                            new RequestSuccessLog("Request Success", "saveDataExchangeFile")));
-        } catch (Exception ex) {
-            log.error(
-                    objectMapper.writeValueAsString(
-                            new OrdsErrorLog(
-                                    "Error received from ORDS",
-                                    "saveDataExchangeFile",
-                                    ex.getMessage(),
-                                    payload)));
-            return -3;
         }
 
         // Public xml (in ReceiverPub) for sender
@@ -185,7 +145,7 @@ public class ReceiverService {
                                     "generateIncomingRequestFile",
                                     ex.getMessage(),
                                     reqFileResp.getBody())));
-            return -4;
+            return -3;
         }
         return 0;
     }
@@ -307,41 +267,41 @@ public class ReceiverService {
             }
             // END CRDPAPPINPART1-REGNUMBER_MOD
 
-            // CRDPAPPINPART2
+            // CRDPDISPINPART2
             if (fileComponent.getPartTwoData() != null) {
                 for (PartTwoData two : fileComponent.getPartTwoData()) {
-                    Element crdpappinPart2 = doc.createElement("CRDPAPPINPART2");
-                    createXmlNode("Record_Type", two.getRecordType(), crdpappinPart2, doc);
-                    createXmlNode("Court_Number", two.getCourtNumber(), crdpappinPart2, doc);
+                    Element crdpdispinPart2 = doc.createElement("CRDPDISPINPART2");
+                    createXmlNode("Record_Type", two.getRecordType(), crdpdispinPart2, doc);
+                    createXmlNode("Court_Number", two.getCourtNumber(), crdpdispinPart2, doc);
                     createXmlNode(
                             "Divorce_Registry_Number",
                             two.getDivorceRegistryNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     createXmlNode(
                             "Source_Case_Number",
                             two.getSourceCaseNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc); // No data from DB
                     createXmlNode(
-                            "Disposition_Code", two.getDispositionCode(), crdpappinPart2, doc);
+                            "Disposition_Code", two.getDispositionCode(), crdpdispinPart2, doc);
                     createXmlNode(
-                            "Disposition_Date", two.getDispositionDate(), crdpappinPart2, doc);
+                            "Disposition_Date", two.getDispositionDate(), crdpdispinPart2, doc);
                     createXmlNode(
                             "Transferred_Court_Number",
                             two.getTransferredCourtNumber(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     createXmlNode(
                             "Disposition_Signed_Date",
                             two.getDispositionSignedDate(),
-                            crdpappinPart2,
+                            crdpdispinPart2,
                             doc);
                     partTwoIds.add(two.getPhysicalFileId());
-                    rootElement.appendChild(crdpappinPart2);
+                    rootElement.appendChild(crdpdispinPart2);
                 }
             }
-            // END CRDPAPPINPART2
+            // END CRDPDISPINPART2
 
             // CRDPAPPIN99
             Element crdpappin99 = doc.createElement("CRDPAPPIN99");

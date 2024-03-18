@@ -3,9 +3,10 @@ package ca.bc.gov.open.crdp.transmit.sender.configuration;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.soap.SOAPMessage;
+import jakarta.xml.soap.SOAPMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -32,6 +33,9 @@ public class SoapConfig extends WsConfigurerAdapter {
     @Value("${crdp.password}")
     private String password;
 
+    @Value("${crdp.ords-read-timeout}")
+    private String ordsReadTimeout;
+
     @Bean
     public ServletRegistrationBean<MessageDispatcherServlet> messageDispatcherServlet(
             ApplicationContext applicationContext) {
@@ -43,7 +47,11 @@ public class SoapConfig extends WsConfigurerAdapter {
 
     @Bean
     public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
-        var restTemplate = restTemplateBuilder.basicAuthentication(username, password).build();
+        var restTemplate =
+                restTemplateBuilder
+                        .basicAuthentication(username, password)
+                        .setReadTimeout(Duration.ofSeconds(Integer.parseInt(ordsReadTimeout)))
+                        .build();
 
         restTemplate.getMessageConverters().add(0, createMappingJacksonHttpMessageConverter());
         return restTemplate;

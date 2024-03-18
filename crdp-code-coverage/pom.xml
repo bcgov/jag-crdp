@@ -11,6 +11,11 @@
 
     <artifactId>crdp-code-coverage</artifactId>
 
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>ca.bc.gov.open</groupId>
@@ -61,7 +66,7 @@
             <dependency>
                 <groupId>ca.bc.gov.open</groupId>
                 <artifactId>crdp-starters-bom</artifactId>
-                <version>0.2.2</version>
+                <version>1.0.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -73,7 +78,7 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.8.7</version>
+                <version>0.8.10</version>
                 <configuration>
                     <excludes>
                         <exclude>**/configuration/WSDLFilter*</exclude>

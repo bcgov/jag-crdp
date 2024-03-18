@@ -40,7 +40,7 @@
                                 <xs:simpleType>
                                     <xs:restriction base="xs:integer">
                                         <xs:minInclusive value="0"/>
-                                        <xs:maxInclusive value="999999"/>
+                                        <xs:maxInclusive value="99999999999999999999"/>
                                     </xs:restriction>
                                 </xs:simpleType>
                             </xs:element>
@@ -87,7 +87,7 @@
                                                     <xs:element name="Event_Reason_Text" minOccurs="0">
                                                         <xs:simpleType>
                                                             <xs:restriction base="xs:string">
-                                                                <xs:minLength value="1"/>
+                                                                <xs:minLength value="0"/>
                                                                 <xs:maxLength value="80"/>
                                                             </xs:restriction>
                                                         </xs:simpleType>

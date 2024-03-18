@@ -11,6 +11,7 @@ crdp:
   errors-dir: ${ERRORS_DIR}
   scanner-queue: ${SCANNER_QUEUE_NAME}
   sftp-enabled: ${SFTP_ENABLED}
+  ords-read-timeout: ${ORDS_READ_TIMEOUT:120}
 
 bcgov:
   sftp:
