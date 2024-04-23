@@ -206,6 +206,16 @@ public class TransformerService {
         File schema = new File(auditSchemaPath);
 
         if (!validateXml(auditSchemaPath, fileName)) {
+            File file = new File(fileName);
+            if(file.exists() && !file.isDirectory()) {
+                ByteArrayInputStream xmlFile = fileService.getContent(fileName);
+                byte[] xmlBytes = new byte[xmlFile.available()];
+                xmlFile.read(xmlBytes);
+                saveError("XML file schema validation failed. fileName:" + fileName,
+                        dateFormat.format(Calendar.getInstance().getTime()),
+                        fileName,
+                        xmlBytes);
+            }
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
 
@@ -255,6 +265,16 @@ public class TransformerService {
     public void processStatusSvc(String fileName) throws IOException {
         String shortFileName = FilenameUtils.getName(fileName); // Extract file name from full path
         if (!validateXml(statusSchemaPath, fileName)) {
+            File file = new File(fileName);
+            if(file.exists() && !file.isDirectory()) {
+                ByteArrayInputStream xmlFile = fileService.getContent(fileName);
+                byte[] xmlBytes = new byte[xmlFile.available()];
+                xmlFile.read(xmlBytes);
+                saveError("XML file schema validation failed. fileName:" + fileName,
+                        dateFormat.format(Calendar.getInstance().getTime()),
+                        fileName,
+                        xmlBytes);
+            }
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
         UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(host + "process-status");
@@ -390,6 +410,12 @@ public class TransformerService {
         }
 
         if (!isValid) {
+            byte[] xmlBytes = new byte[xmlFile.available()];
+            xmlFile.read(xmlBytes);
+            saveError("XML file schema validation failed. fileName:" + fileName,
+                    dateFormat.format(Calendar.getInstance().getTime()),
+                    fileName,
+                    xmlBytes);
             throw new IOException("XML file schema validation failed. fileName: " + fileName);
         }
 
