@@ -103,7 +103,7 @@ class SenderServiceTests {
         req.setPartTwoFileIds(new ArrayList<>());
         req.setRegModFileIds(new ArrayList<>());
 
-        controller = spy(controller);
+        // controller = spy(controller);
 
         doReturn(0).when(controller).sendXmlFile(Mockito.any(ReceiverPub.class));
 
@@ -121,7 +121,7 @@ class SenderServiceTests {
         req.setPartTwoFileIds(new ArrayList<>());
         req.setRegModFileIds(new ArrayList<>());
 
-        controller = spy(controller);
+        // controller = spy(controller);
 
         doReturn(-1).when(controller).sendXmlFile(Mockito.any(ReceiverPub.class));
 
