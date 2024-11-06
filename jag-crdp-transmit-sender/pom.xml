@@ -184,7 +184,7 @@
         <dependency>
             <groupId>ca.bc.gov.open</groupId>
             <artifactId>crdp-sftp-starter</artifactId>
-            <version>1.0.1</version>
+            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

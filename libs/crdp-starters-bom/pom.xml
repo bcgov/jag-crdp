@@ -13,7 +13,7 @@
         <org.apache.cxf.version>4.0.1</org.apache.cxf.version>
         <com.fasterxml.jackson.core.version>2.11.2</com.fasterxml.jackson.core.version>
         <jakarta.xml.bind-api.version>4.0.1</jakarta.xml.bind-api.version>
-        <commons.io.version>2.14.0</commons.io.version>
+        <commons.io.version>2.13.0</commons.io.version>
         <joda-time.version>2.10.6</joda-time.version>
         <org.mapstruct.version>1.3.1.Final</org.mapstruct.version>
         <fi.solita.clamav>1.0.1</fi.solita.clamav>
@@ -24,6 +24,8 @@
         <jackson.datatype.jsr310.version>2.15.2</jackson.datatype.jsr310.version>
         <jackson.databind.version>2.15.3</jackson.databind.version>
         <splunk.javalogging.version>1.11.1</splunk.javalogging.version>
+        <logback.classic.version>1.4.8</logback.classic.version>
+        <logback.core.version>1.4.8</logback.core.version>
         <spring-context.support.version>5.3.23</spring-context.support.version>
         <wsdl4j.version>1.6.3</wsdl4j.version>
         <jaxb-runtime.version>4.0.1</jaxb-runtime.version>
@@ -37,7 +39,6 @@
         <junit.version>4.13.2</junit.version>
         <spring.test.version>5.3.23</spring.test.version>
         <spring.rabbit.test.version>3.0.5</spring.rabbit.test.version>
-        <spring.security.web.version>6.3.4</spring.security.web.version>
     </properties>
 
     <distributionManagement>
@@ -143,6 +144,18 @@
                 <version>${splunk.javalogging.version}</version>
                 <scope>runtime</scope>
             </dependency>
+
+            <!-- Logging framework -->
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.classic.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.core.version}</version>
+            </dependency>
             <dependency>
                 <groupId>wsdl4j</groupId>
                 <artifactId>wsdl4j</artifactId>
@@ -207,11 +220,6 @@
                 <artifactId>spring-rabbit-test</artifactId>
                 <scope>test</scope>
                 <version>${spring.rabbit.test.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-web</artifactId>
-                <version>${spring.security.web.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
