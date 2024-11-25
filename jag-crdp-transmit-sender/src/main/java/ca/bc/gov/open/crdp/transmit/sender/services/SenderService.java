@@ -124,10 +124,9 @@ public class SenderService {
             return revertSavingAndStatusUpdate(xmlPub);
         } finally {
             if (f != null && f.exists()) {
-                log.info(" temp xml file with filename: " + f.getAbsolutePath());
-//                if (!f.delete()) {
-//                    log.warn("Failed to delete temp xml file.");
-//                }
+                if (!f.delete()) {
+                    log.warn("Failed to delete temp xml file.");
+                }
             }
         }
     }
