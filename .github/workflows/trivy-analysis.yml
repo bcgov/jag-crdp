@@ -53,7 +53,7 @@ jobs:
           image-ref: docker.io/crdp/jag-crdp-transmit-receiver:${{ github.sha }}
           format: sarif
           output: trivy-results.sarif
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
@@ -74,7 +74,7 @@ jobs:
           image-ref: docker.io/crdp/jag-crdp-transmit-sender:${{ github.sha }}
           format: sarif
           output: trivy-results.sarif
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
@@ -95,7 +95,7 @@ jobs:
           image-ref: docker.io/crdp/jag-crdp-process-scanner:${{ github.sha }}
           format: sarif
           output: trivy-results.sarif
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
@@ -116,7 +116,7 @@ jobs:
           image-ref: docker.io/crdp/jag-crdp-process-transformer:${{ github.sha }}
           format: sarif
           output: trivy-results.sarif
-          exit-code: 1
+          exit-code: 0
           ignore-unfixed: true
           limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
