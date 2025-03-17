@@ -55,6 +55,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 0
           ignore-unfixed: true
+          limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
 
       - name: Build image jag-crdp-transmit-sender from Dockerfile
@@ -75,6 +76,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 0
           ignore-unfixed: true
+          limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
 
       - name: Build image jag-crdp-process-scanner from Dockerfile
@@ -95,6 +97,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 0
           ignore-unfixed: true
+          limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
 
       - name: Build image jag-crdp-process-transformer from Dockerfile
@@ -115,6 +118,7 @@ jobs:
           output: trivy-results.sarif
           exit-code: 0
           ignore-unfixed: true
+          limit-severities-for-sarif: true
           severity: HIGH,CRITICAL
 
       # Upload results to the Github security tab.
