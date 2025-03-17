@@ -192,6 +192,11 @@
             <artifactId>netty-handler</artifactId>
             <version>4.1.119.Final</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+            <version>10.1.39</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>
